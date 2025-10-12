@@ -67,7 +67,7 @@ jobs:
         run: |
             echo "DEPLOY_PROVIDER is set"
   
-        - name: DEPLOY_PROVIDER missing
+      - name: DEPLOY_PROVIDER missing
         if: ${{ env.DEPLOY_PROVIDER == '' }}
         run: |
             echo "DEPLOY_PROVIDER is not set"
