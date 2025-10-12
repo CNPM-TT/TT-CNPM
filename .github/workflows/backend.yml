@@ -32,7 +32,19 @@ jobs:
             npx eslint backend --ext js --max-warnings=0 || true
           fi
 
+      - name: Check MONGODB_URI presence (secret)
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: |
+          if [ -z "$MONGODB_URI" ]; then
+            echo "MONGODB_URI is not set in repository secrets"
+          else
+            echo "MONGODB_URI secret is present (value hidden)"
+          fi
+
       - name: Run tests
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
         run: npm test
 
       - name: Upload backend artifact

@@ -11,7 +11,7 @@ const rootEnvPath = join(__dirname, '..', '..', '.env');
 
 dotenv.config({ path: rootEnvPath });
 
-const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/tt_cnpm_test';
+const uri = process.env.MONGODB_URI;
 
 console.log('Testing database connection using MONGODB_URI presence:', !!process.env.MONGODB_URI);
 
