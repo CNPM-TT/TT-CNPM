@@ -13,6 +13,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_PROVIDER: ${{ secrets.DEPLOY_PROVIDER }}
     steps:
       - uses: actions/checkout@v4
 
@@ -30,16 +32,55 @@ jobs:
             npx eslint backend --ext js --max-warnings=0 || true
           fi
 
+      - name: Check MONGODB_URI presence (secret)
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: |
+          if [ -z "$MONGODB_URI" ]; then
+            echo "MONGODB_URI is not set in repository secrets"
+          else
+            echo "MONGODB_URI secret is present (value hidden)"
+          fi
+
+      - name: Start backend server
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PORT: 5000
+          DOMAIN: http://localhost:5000
+        run: |
+          nohup npm start > backend.log 2>&1 &
+          echo "⏳ Waiting for backend to start..."
+          for i in {1..15}; do
+            if curl -s http://localhost:5000/api/user/health >/dev/null; then
+              echo "✅ Backend is up!"
+              break
+            fi
+            echo "Still waiting... ($i)"
+            sleep 2
+          done
+
       - name: Run tests
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PORT: 5000
+          DOMAIN: http://localhost:5000
         run: npm test
+
 
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-node-modules
-          path: backend/node_modules
-
-      - name: Deploy placeholder
-        if: ${{ secrets.DEPLOY_PROVIDER != '' }}
+            name: backend-dist
+            path: backend/dist
+  
+      - name: DEPLOY_PROVIDER present
+        if: ${{ env.DEPLOY_PROVIDER != '' }}
         run: |
-          echo "DEPLOY_PROVIDER is set. Add provider-specific deploy steps here (e.g., Vercel/Heroku)."
+            echo "DEPLOY_PROVIDER is set"
+  
+      - name: DEPLOY_PROVIDER missing
+        if: ${{ env.DEPLOY_PROVIDER == '' }}
+        run: |
+            echo "DEPLOY_PROVIDER is not set"

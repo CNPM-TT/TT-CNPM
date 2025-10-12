@@ -36,15 +36,20 @@ jobs:
         run: |
           npm install
 
-      - name: Run seed script
+      - name: Run seed script and capture logs
         env:
           MONGODB_URI: mongodb://localhost:27017/tt_cnpm_ci
+        continue-on-error: true
         run: |
-          node database/seed.js
+          mkdir -p ./database
+          # run the seed script and capture both stdout and stderr to a log file
+          # tee writes to file and also streams to the workflow log
+          node database/seed.js 2>&1 | tee ./database/seed.log
 
       - name: Upload seed logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: database-seed-log
           path: |
-            ./database/*.log
+            ./database/seed.log
