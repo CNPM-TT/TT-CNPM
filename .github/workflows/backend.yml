@@ -38,8 +38,8 @@ jobs:
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-node-modules
-          path: backend/node_modules
+          name: backend-dist
+          path: backend/dist
 
       - name: DEPLOY_PROVIDER present
         if: ${{ env.DEPLOY_PROVIDER != '' }}

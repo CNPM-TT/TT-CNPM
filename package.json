@@ -8,7 +8,7 @@
     "dev": "nodemon backend/server.js",
     "start": "node backend/server.js",
     "build": "npm install",
-    "test": "echo \"No tests\" && exit 0"
+    "test": "node backend/test/db-connection-test.js"
   },
   "author": "sourav",
   "license": "ISC",
