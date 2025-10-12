@@ -6,6 +6,7 @@ import Add from "./pages/Add/Add";
 import List from "./pages/List/List";
 import Orders from "./pages/Orders/Orders";
 import Update from "./pages/Update/Update";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login/Login";
@@ -60,7 +61,9 @@ function App() {
             <Sidebar />
             <div className="inner-body">
               <Routes>
-                <Route path="/" exact element={<Login />} />
+                <Route path="/" exact element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/users" element={<User />} />
                 <Route path="/add" element={<Add />} />
                 <Route path="/list" element={<List />} />

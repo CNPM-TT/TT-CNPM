@@ -18,7 +18,7 @@ connectDb();
 //api endpoints
 //food api
 app.use("/api/food", foodRouter);
-// app.use("/images", express.static("uploads"));
+app.use("/images", express.static("uploads"));
 
 //user api
 app.use("/api/user", userRouter);
