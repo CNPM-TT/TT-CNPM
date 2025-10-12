@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { Routes, Route, useNavigate } from "react-router-dom";
@@ -6,7 +6,7 @@ import Add from "./pages/Add/Add";
 import List from "./pages/List/List";
 import Orders from "./pages/Orders/Orders";
 import Update from "./pages/Update/Update";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login/Login";
 import User from "./pages/User/User";
@@ -15,27 +15,27 @@ function App() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const passcode = localStorage.getItem("passcode");
-  //   if (passcode === "TAYLORSWIFT13") {
-  //     setIsAuthorized(true);
-  //   } else {
-  //     setIsAuthorized(false);
-  //     alert("Unauthorized access. Please enter the correct passcode.");
-  //     navigate("/");
-  //   }
-  // }, [navigate]);
-
   useEffect(() => {
     const passcode = localStorage.getItem("passcode");
     if (passcode === "TAYLORSWIFT13") {
+      setIsAuthorized(true);
+    } else {
       setIsAuthorized(false);
       alert("Unauthorized access. Please enter the correct passcode.");
       navigate("/");
-    } else {
-      setIsAuthorized(true);
     }
   }, [navigate]);
+
+  // useEffect(() => {
+  //   const passcode = localStorage.getItem("passcode");
+  //   if (passcode === "TAYLORSWIFT13") {
+  //     setIsAuthorized(false);
+  //     alert("Unauthorized access. Please enter the correct passcode.");
+  //     navigate("/");
+  //   } else {
+  //     setIsAuthorized(true);
+  //   }
+  // }, [navigate]);
 
   return (
     <>
@@ -50,7 +50,7 @@ function App() {
         draggable
         pauseOnHover={false}
         theme="light"
-        transition:Slide
+        transition={Slide}
       />{" "}
       {isAuthorized ? (
         <>

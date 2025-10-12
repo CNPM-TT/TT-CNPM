@@ -1,0 +1,50 @@
+name: Database CI
+
+on:
+  push:
+    branches:
+      - develop
+      - 'milestone/**'
+  pull_request:
+    branches:
+      - develop
+      - 'milestone/**'
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Wait for MongoDB
+        run: |
+          echo "Waiting for MongoDB service to initialize..."
+          sleep 15
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Run seed script
+        env:
+          MONGODB_URI: mongodb://localhost:27017/tt_cnpm_ci
+        run: |
+          node database/seed.js
+
+      - name: Upload seed logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-seed-log
+          path: |
+            ./database/*.log
