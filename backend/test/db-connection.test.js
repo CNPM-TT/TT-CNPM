@@ -7,26 +7,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootEnvPath = join(__dirname, '..', '..', '.env');
 
-// Load .env from the repo root
 dotenv.config({ path: rootEnvPath });
 
 const uri = process.env.MONGODB_URI;
 
-describe('🧩 MongoDB Connection Test', () => {
-  beforeAll(async () => {
-    if (!uri) {
-      throw new Error('❌ No MONGODB_URI found in environment variables');
-    }
+export async function testDbConnection() {
+  console.log('\n🧪 Testing database connection...');
 
-    // Try to connect before running tests
+  try {
     await mongoose.connect(uri, { maxPoolSize: 5 });
-  });
-
-  afterAll(async () => {
+    console.log('✅ Successfully connected to MongoDB');
     await mongoose.disconnect();
-  });
-
-  it('✅ should connect to MongoDB successfully', async () => {
-    expect(mongoose.connection.readyState).toBe(1);
-  });
-});
+  } catch (err) {
+    console.error('❌ Failed to connect to MongoDB');
+    console.error(err.message || err);
+    throw err; // Let test.js handle failure
+  }
+}

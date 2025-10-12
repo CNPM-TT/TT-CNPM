@@ -42,23 +42,32 @@ jobs:
             echo "MONGODB_URI secret is present (value hidden)"
           fi
 
-      - name: Run tests
+      - name: Start backend server
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: |
+          nohup npm start > backend.log 2>&1 &
+          sleep 5
+          echo "Backend started in background"
+
+      - name: Run tests
+        env:
+            MONGODB_URI: ${{ secrets.MONGODB_URI }}
+            DOMAIN: http://localhost:5000
         run: npm test
 
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-dist
-          path: backend/dist
-
+            name: backend-dist
+            path: backend/dist
+  
       - name: DEPLOY_PROVIDER present
         if: ${{ env.DEPLOY_PROVIDER != '' }}
         run: |
-          echo "DEPLOY_PROVIDER is set"
-
-      - name: DEPLOY_PROVIDER missing
+            echo "DEPLOY_PROVIDER is set"
+  
+        - name: DEPLOY_PROVIDER missing
         if: ${{ env.DEPLOY_PROVIDER == '' }}
         run: |
-          echo "DEPLOY_PROVIDER is not set"
+            echo "DEPLOY_PROVIDER is not set"
