@@ -3,12 +3,11 @@ import dotenv from "dotenv";
 dotenv.config();
 const sendWelcomeMail = async (email, name) => {
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    service: process.env.SMTP_SERVICE,
     secure: false,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
+      user: "apikey",
+      pass: process.env.SENDGRID_API_KEY,
     },
   });
 
@@ -176,12 +175,11 @@ const sendOrderConfirmNotif = async (
   cod
 ) => {
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    service: process.env.SMTP_SERVICE,
     secure: false,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
+      user: "apikey",
+      pass: process.env.SENDGRID_API_KEY,
     },
   });
 
@@ -404,12 +402,11 @@ const sendOrderStatusNotif = async (
   status
 ) => {
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    service: process.env.SMTP_SERVICE,
     secure: false,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
+      user: "apikey",
+      pass: process.env.SENDGRID_API_KEY,
     },
   });
   await transporter.sendMail({
