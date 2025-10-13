@@ -65,16 +65,9 @@ function MyOrders() {
                           <span>&#x25cf;</span> &nbsp;
                           <b>{order.status}</b>
                         </p>
-
-                        {!order.payment && order.cod ? (
-                          <p>
-                            <b>Cash on Delivery</b>
-                          </p>
-                        ) : (
-                          <p>
-                            <b className="text-black">Paid</b>
-                          </p>
-                        )}
+                        <p>
+                          <b className="text-black">Paid</b>
+                        </p>
                         <button onClick={fetchData}>Track Order</button>
                       </div>
                     );

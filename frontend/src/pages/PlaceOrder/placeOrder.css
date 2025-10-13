@@ -50,26 +50,7 @@
 }
 
 .pay-online img{
-    width: 30px;
-    
-}
-.cod-btn{
-    margin: 0 !important;
-    color: black !important;
-    background-color: rgb(204, 204, 204) !important;
-
-}
-.cod p{
-    text-align: right;
-}
-
-.upi-btn img{
-
-    width: 70px;
-}
-.upi-btn img:hover{
-    transform: scale(1.1);
-    transition: .3s;
+    width: 35px;
 }
 @media (max-width:900px) {
     .place-order {

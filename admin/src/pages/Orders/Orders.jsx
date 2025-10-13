@@ -67,12 +67,7 @@ function Orders() {
               </div>
               <p>Items : {order.items.length}</p>
               <p>
-                ₹{order.amount} {" "}
-                {!order.payment && order.cod ? (
-                  <b>(COD)</b>
-                ) : (
-                  <b className="">(Paid)</b>
-                )}
+                ₹{order.amount} <b className="">(Paid)</b>
               </p>
               <select
                 onChange={(e) => statusHandler(e, order._id)}

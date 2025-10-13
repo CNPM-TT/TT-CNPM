@@ -14,7 +14,6 @@ function PlaceOrder() {
   const Token = localStorage.getItem("Token");
   const [dataLoading, setDataLoading] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [codLoading, setCodLoading] = useState(false);
   const [data, setData] = useState({
     name: "",
     email: "",
@@ -60,44 +59,8 @@ function PlaceOrder() {
   };
   const placeOrder = async (e) => {
     e.preventDefault();
-    let orderItems = [];
-    food_list.map((item) => {
-      if (cartItems[item._id] > 0) {
-        let itemInfo = item;
-        itemInfo["quantity"] = cartItems[item._id];
-        orderItems.push(itemInfo);
-      }
-    });
-    let orderData = {
-      address: data,
-      items: orderItems,
-      amount: promoApplied
-        ? getTotalCartAmount() + 25 + 5 - 25
-        : getTotalCartAmount() + 25 + 5,
-      promoApplied,
-    };
-    setLoading(true);
-    let response = await axios.post(
-      `${DOMAIN}/api/order/placeorder`,
-      orderData,
-      {
-        headers: {
-          token,
-        },
-      }
-    );
-    if (response.data.success) {
-      const { session_url } = response.data;
-      setLoading(false);
-      window.location.replace(session_url);
-    } else {
-      toast.error(response.data.message);
-    }
-  };
-
-  const cod = async (e) => {
-    e.preventDefault();
-    console.log(data);
+    
+    // Validate form fields
     if (
       data.name === "" ||
       data.email === "" ||
@@ -108,9 +71,10 @@ function PlaceOrder() {
       data.landmark === "" ||
       data.phone === ""
     ) {
-      toast.error("Please fill the required fields");
+      toast.error("Please fill all required fields");
       return;
     }
+
     let orderItems = [];
     food_list.map((item) => {
       if (cartItems[item._id] > 0) {
@@ -119,6 +83,7 @@ function PlaceOrder() {
         orderItems.push(itemInfo);
       }
     });
+    
     let orderData = {
       address: data,
       items: orderItems,
@@ -127,20 +92,33 @@ function PlaceOrder() {
         : getTotalCartAmount() + 25 + 5,
       promoApplied,
     };
-    setCodLoading(true);
-    let response = await axios.post(`${DOMAIN}/api/order/cod`, orderData, {
-      headers: {
-        token,
-      },
-    });
-    if (response.data.success) {
-      const { session_url } = response.data;
-      setCodLoading(false);
-      window.location.replace(session_url);
-    } else {
-      toast.error(response.data.message);
+    
+    setLoading(true);
+    try {
+      let response = await axios.post(
+        `${DOMAIN}/api/order/placeorder`,
+        orderData,
+        {
+          headers: {
+            token,
+          },
+        }
+      );
+      if (response.data.success) {
+        const { session_url } = response.data;
+        setLoading(false);
+        window.location.replace(session_url);
+      } else {
+        setLoading(false);
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      setLoading(false);
+      toast.error("Error placing order. Please try again later.");
+      console.error(error);
     }
   };
+
   useEffect(() => {
     if (!localStorage.getItem("Token")) {
       toast.warn("Please login to continue.");
@@ -297,18 +275,9 @@ function PlaceOrder() {
                   )}
                 </div>
                 <button type="submit" className="pay-online">
-                  {loading ? "Processing..." : "Pay online"}{" "}
-                  <img src={assets.card} /> <img src={assets.upi} />
+                  {loading ? "Processing..." : "Proceed to Payment"}{" "}
+                  <img src={assets.card} />
                 </button>
-                <div className="cod">
-                  <button onClick={cod} className="cod-btn pay-online">
-                    {codLoading ? "Processing..." : "Cash On Delivery"}
-                  </button>
-                  <p>
-
-                  (This option will place your order).
-                  </p>
-                </div>
               </div>
             </div>
           </form>
