@@ -6,6 +6,9 @@ dotenv.config({ path: new URL('../.env', import.meta.url).pathname });
 const uri = process.env.MONGODB_URI;
 console.log('Using MONGODB_URI:', uri ? '(present)' : '(missing)');
 
+// Test the MongoDB connection
+test();
+
 async function test() {
   if (!uri) {
     console.error('MONGODB_URI is not defined in .env');
@@ -24,4 +27,3 @@ async function test() {
   }
 }
 
-test();

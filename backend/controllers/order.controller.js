@@ -1,5 +1,5 @@
-import orderModel from "../models/order.model.js";
-import userModel from "../models/user.model.js";
+import orderModel from "../../database/models/order.model.js";
+import userModel from "../../database/models/user.model.js";
 import Stripe from "stripe";
 import { CLIENT_DOMAIN } from "../config/client.js";
 import {

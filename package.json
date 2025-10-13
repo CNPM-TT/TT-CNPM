@@ -1,13 +1,14 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "tomato food delivey app",
+  "description": "Tomato food delivery app",
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "build": "npm install"
+    "dev": "nodemon backend/server.js",
+    "start": "node backend/server.js",
+    "build": "npm install",
+    "test": "node backend/test/test.js"
   },
   "author": "sourav",
   "license": "ISC",
@@ -28,5 +29,9 @@
     "toastify": "^2.0.1",
     "twilio": "^5.0.4",
     "validator": "^13.11.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "axios": "^1.7.0"
   }
 }
