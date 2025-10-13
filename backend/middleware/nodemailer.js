@@ -3,13 +3,14 @@ import dotenv from "dotenv";
 dotenv.config();
 const sendWelcomeMail = async (email, name) => {
   const transporter = nodemailer.createTransport({
-    service: process.env.SMTP_SERVICE,
-    secure: false,
-    auth: {
-      user: "apikey",
-      pass: process.env.SENDGRID_API_KEY,
-    },
-  });
+  service: "SendGrid",
+  auth: {
+    user: "apikey",
+    pass: process.env.SENDGRID_API_KEY,
+  },
+});
+
+  
 
   await transporter.sendMail({
     from: process.env.SMTP_USER,
@@ -175,13 +176,12 @@ const sendOrderConfirmNotif = async (
   cod
 ) => {
   const transporter = nodemailer.createTransport({
-    service: process.env.SMTP_SERVICE,
-    secure: false,
-    auth: {
-      user: "apikey",
-      pass: process.env.SENDGRID_API_KEY,
-    },
-  });
+  service: "SendGrid",
+  auth: {
+    user: "apikey",
+    pass: process.env.SENDGRID_API_KEY,
+  },
+});
 
   await transporter.sendMail({
     from: process.env.SMTP_USER,
@@ -402,13 +402,12 @@ const sendOrderStatusNotif = async (
   status
 ) => {
   const transporter = nodemailer.createTransport({
-    service: process.env.SMTP_SERVICE,
-    secure: false,
-    auth: {
-      user: "apikey",
-      pass: process.env.SENDGRID_API_KEY,
-    },
-  });
+  service: "SendGrid",
+  auth: {
+    user: "apikey",
+    pass: process.env.SENDGRID_API_KEY,
+  },
+});
   await transporter.sendMail({
     from: process.env.SMTP_USER,
     to: email,
