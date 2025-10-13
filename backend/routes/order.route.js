@@ -5,7 +5,7 @@ import { cod, listOrders, placeOrder, updateStatus, userOrder, verifyOrder } fro
 const orderRouter = express.Router()
 
 orderRouter.post('/placeorder',authMidddleware, placeOrder)
-orderRouter.post('/cod',authMidddleware, cod)
+// orderRouter.post('/cod',authMidddleware, cod) // COD disabled - only online payment
 orderRouter.post('/verify', verifyOrder)
 orderRouter.post('/userorder', authMidddleware,userOrder)
 orderRouter.get('/list', listOrders)
