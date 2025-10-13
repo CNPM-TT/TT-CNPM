@@ -16,27 +16,27 @@ function App() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const passcode = localStorage.getItem("passcode");
-    if (passcode === "TAYLORSWIFT13") {
-      setIsAuthorized(true);
-    } else {
-      setIsAuthorized(false);
-      alert("Unauthorized access. Please enter the correct passcode.");
-      navigate("/");
-    }
-  }, [navigate]);
-
   // useEffect(() => {
   //   const passcode = localStorage.getItem("passcode");
   //   if (passcode === "TAYLORSWIFT13") {
+  //     setIsAuthorized(true);
+  //   } else {
   //     setIsAuthorized(false);
   //     alert("Unauthorized access. Please enter the correct passcode.");
   //     navigate("/");
-  //   } else {
-  //     setIsAuthorized(true);
   //   }
   // }, [navigate]);
+
+  useEffect(() => {
+    const passcode = localStorage.getItem("passcode");
+    if (passcode === "TAYLORSWIFT13") {
+      setIsAuthorized(false);
+      alert("Unauthorized access. Please enter the correct passcode.");
+      navigate("/");
+    } else {
+      setIsAuthorized(true);
+    }
+  }, [navigate]);
 
   return (
     <>
