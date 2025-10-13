@@ -1,14 +1,13 @@
 import nodemailer from "nodemailer";
+import sendgridTransport from "nodemailer-sendgrid";
 import dotenv from "dotenv";
 dotenv.config();
 const sendWelcomeMail = async (email, name) => {
-  const transporter = nodemailer.createTransport({
-  service: "SendGrid",
-  auth: {
-    user: "apikey",
-    pass: process.env.SENDGRID_API_KEY,
-  },
-});
+  const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    apiKey: process.env.SENDGRID_API_KEY,
+  })
+);
 
   
 
@@ -175,13 +174,11 @@ const sendOrderConfirmNotif = async (
   amount,
   cod
 ) => {
-  const transporter = nodemailer.createTransport({
-  service: "SendGrid",
-  auth: {
-    user: "apikey",
-    pass: process.env.SENDGRID_API_KEY,
-  },
-});
+  const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    apiKey: process.env.SENDGRID_API_KEY,
+  })
+);
 
   await transporter.sendMail({
     from: process.env.SMTP_USER,
@@ -401,13 +398,11 @@ const sendOrderStatusNotif = async (
   cod,
   status
 ) => {
-  const transporter = nodemailer.createTransport({
-  service: "SendGrid",
-  auth: {
-    user: "apikey",
-    pass: process.env.SENDGRID_API_KEY,
-  },
-});
+  const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    apiKey: process.env.SENDGRID_API_KEY,
+  })
+);
   await transporter.sendMail({
     from: process.env.SMTP_USER,
     to: email,
