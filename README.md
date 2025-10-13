@@ -194,10 +194,11 @@ npm test
 
 **Checkout - Thanh toán**
 ![Checkout](frontend/public/s4.png)
+![Checkout](frontend/public/s5.png)
 *Form thông tin giao hàng và thanh toán*
 
 **Order Tracking - Theo dõi đơn hàng**
-![My Orders](frontend/public/s5.png)
+![My Orders](frontend/public/s6.png)
 *Theo dõi trạng thái đơn hàng của bạn*
 
 ### Admin Panel
