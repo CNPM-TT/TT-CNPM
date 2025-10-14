@@ -1,16 +1,15 @@
 import nodemailer from "nodemailer";
+import sendgridTransport from "nodemailer-sendgrid";
 import dotenv from "dotenv";
 dotenv.config();
 const sendWelcomeMail = async (email, name) => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-  });
+  const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    apiKey: process.env.SENDGRID_API_KEY,
+  })
+);
+
+  
 
   await transporter.sendMail({
     from: process.env.SMTP_USER,
@@ -175,15 +174,11 @@ const sendOrderConfirmNotif = async (
   amount,
   cod
 ) => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-  });
+  const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    apiKey: process.env.SENDGRID_API_KEY,
+  })
+);
 
   await transporter.sendMail({
     from: process.env.SMTP_USER,
@@ -403,15 +398,11 @@ const sendOrderStatusNotif = async (
   cod,
   status
 ) => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-  });
+  const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    apiKey: process.env.SENDGRID_API_KEY,
+  })
+);
   await transporter.sendMail({
     from: process.env.SMTP_USER,
     to: email,
