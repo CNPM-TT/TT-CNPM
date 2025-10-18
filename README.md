@@ -14,7 +14,9 @@ Hệ thống bao gồm một admin panel để quản trị viên có thể theo
 - 💵 **Multiple Payment Options**: Nhiều phương thức thanh toán bao gồm COD (Cash On Delivery)
 - 📦 **Order Tracking**: Hệ thống theo dõi đơn hàng nâng cao
 - 📊 **Admin Dashboard**: Thống kê doanh thu, đơn hàng, khách hàng
-- 🔔 **Email Notifications**: Thông báo qua email khi đặt hàng và cập nhật trạng thái
+- �‍🍳 **Restaurant Kitchen Panel**: Giao diện riêng cho nhà hàng quản lý nấu ăn và chuẩn bị đơn hàng
+- 🚁 **Drone Delivery System**: Hệ thống giao hàng bằng drone (phương thức mặc định)
+- �🔔 **Email Notifications**: Thông báo qua email khi đặt hàng và cập nhật trạng thái
 - 🎨 **Responsive Design**: Giao diện responsive cho mọi thiết bị
 
 ## 🛠️ Tech Stack (Công nghệ sử dụng)
@@ -66,6 +68,11 @@ TT-CNPM/
 │   │   ├── components/  # Admin components
 │   │   └── pages/       # Admin pages (Dashboard, Orders, Products, Users)
 │   └── public/
+├── restaurant/          # Restaurant/Kitchen panel (React.js)
+│   ├── src/
+│   │   ├── components/  # Restaurant components
+│   │   └── pages/       # Kitchen pages (Dashboard, Orders)
+│   └── public/
 ├── database/            # Database models và seeders
 │   ├── models/          # Mongoose schemas
 │   └── seed.js          # Database seeder
@@ -90,7 +97,7 @@ TT-CNPM/
 
 2. **Cài đặt dependencies cho cả 3 thư mục**
    
-   Mở 3 terminal riêng biệt và chạy:
+   Mở 4 terminal riêng biệt và chạy:
    
    **Terminal 1 - Backend:**
    ```bash
@@ -107,6 +114,12 @@ TT-CNPM/
    **Terminal 3 - Admin:**
    ```bash
    cd admin
+   npm install
+   ```
+
+   **Terminal 4 - Restaurant:**
+   ```bash
+   cd restaurant
    npm install
    ```
 
@@ -164,9 +177,16 @@ TT-CNPM/
    # Admin panel chạy tại http://localhost:5174
    ```
 
+   **Restaurant:**
+   ```bash
+   npm run dev
+   # Restaurant panel chạy tại http://localhost:5175
+   ```
+
 6. **Truy cập ứng dụng**
    - Frontend (Customer): `http://localhost:5173`
    - Admin Panel: `http://localhost:5174`
+   - Restaurant Panel: `http://localhost:5175`
    - Backend API: `http://localhost:5000`
 
 ## 🧪 Running Tests

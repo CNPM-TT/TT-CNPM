@@ -2,41 +2,30 @@ import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import Add from "./pages/Add/Add";
-import List from "./pages/List/List";
-import Orders from "./pages/Orders/Orders";
-import Update from "./pages/Update/Update";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import Orders from "./pages/Orders/Orders";
+import Login from "./pages/Login/Login";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Login from "./pages/Login/Login";
-import User from "./pages/User/User";
 
 function App() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const passcode = localStorage.getItem("passcode");
-    if (passcode === "TAYLORSWIFT13") {
+    const auth = localStorage.getItem("restaurant-auth");
+    if (auth === "true") {
       setIsAuthorized(true);
     } else {
       setIsAuthorized(false);
-      alert("Unauthorized access. Please enter the correct passcode.");
-      navigate("/");
     }
-  }, [navigate]);
+  }, []);
 
-  // useEffect(() => {
-  //   const passcode = localStorage.getItem("passcode");
-  //   if (passcode === "TAYLORSWIFT13") {
-  //     setIsAuthorized(false);
-  //     alert("Unauthorized access. Please enter the correct passcode.");
-  //     navigate("/");
-  //   } else {
-  //     setIsAuthorized(true);
-  //   }
-  // }, [navigate]);
+  const handleLogout = () => {
+    localStorage.removeItem("restaurant-auth");
+    setIsAuthorized(false);
+    navigate("/");
+  };
 
   return (
     <>
@@ -52,23 +41,22 @@ function App() {
         pauseOnHover={false}
         theme="light"
         transition={Slide}
-      />{" "}
+      />
       {isAuthorized ? (
         <>
-          <Navbar />
-          <hr />
+          <Navbar onLogout={handleLogout} />
+          <hr style={{ margin: 0, border: 0, borderTop: '1px solid #e5e7eb' }} />
           <div className="app-content">
             <Sidebar />
             <div className="inner-body">
               <Routes>
-                <Route path="/" exact element={<Dashboard />} />
+                <Route path="/" element={<Dashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/users" element={<User />} />
-                <Route path="/add" element={<Add />} />
-                <Route path="/list" element={<List />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/update/:id" element={<Update />} />
+                <Route path="/orders/*" element={<Orders />} />
+                <Route path="/orders/new" element={<Orders />} />
+                <Route path="/orders/preparing" element={<Orders />} />
+                <Route path="/orders/ready" element={<Orders />} />
+                <Route path="/orders/completed" element={<Orders />} />
               </Routes>
             </div>
           </div>
