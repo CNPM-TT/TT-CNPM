@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+ 
+# Ignore local frontend config which may contain secrets
+src/config.js

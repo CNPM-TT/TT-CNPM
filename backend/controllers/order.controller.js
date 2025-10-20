@@ -134,10 +134,16 @@ const listOrders = async (req, res) => {
 //api for updating order status
 const updateStatus = async (req, res) => {
   try {
+    // Auto-delivery for drone orders: When restaurant dispatches drone, mark as delivered immediately
+    let finalStatus = req.body.status;
+    if (req.body.status === "Out for Delivery") {
+      finalStatus = "Delivered"; // Drone delivery is instant
+    }
+
     await orderModel.findByIdAndUpdate(req.body.orderId, {
-      status: req.body.status,
+      status: finalStatus,
     });
-    const status = req.body.status;
+    
     const orderDetails = await orderModel.findById(req.body.orderId);
     sendOrderStatusNotif(
       orderDetails.address.email,
@@ -146,7 +152,7 @@ const updateStatus = async (req, res) => {
       orderDetails.address.phone,
       orderDetails.amount,
       orderDetails.cod,
-      status
+      finalStatus
     );
     res.json({ success: true, message: "Order status updated." });
   } catch (error) {

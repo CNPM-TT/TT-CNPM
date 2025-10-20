@@ -23,5 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# Ignore local admin config which may contain secrets
+# Ignore local restaurant config which may contain secrets
 src/config.js
