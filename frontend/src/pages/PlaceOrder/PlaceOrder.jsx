@@ -75,14 +75,21 @@ function PlaceOrder() {
       return;
     }
 
-    let orderItems = [];
-    food_list.map((item) => {
-      if (cartItems[item._id] > 0) {
-        let itemInfo = item;
-        itemInfo["quantity"] = cartItems[item._id];
-        orderItems.push(itemInfo);
-      }
-    });
+    // Build an items array that contains only the fields we need and the quantity
+    const orderItems = Object.keys(cartItems)
+      .filter((id) => cartItems[id] > 0)
+      .map((id) => {
+        const item = food_list.find((f) => f._id === id);
+        if (!item) return null; // defensive
+        return {
+          foodId: item._id,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          quantity: cartItems[id],
+        };
+      })
+      .filter(Boolean);
     
     let orderData = {
       address: data,
