@@ -11,6 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 //placing user order from frontend
 const placeOrder = async (req, res) => {
   try {
+    // Previous behavior: trust client-provided items and amount
     const newOrder = new orderModel({
       userId: req.body.userId,
       items: req.body.items,
@@ -22,9 +23,8 @@ const placeOrder = async (req, res) => {
     await newOrder.save();
     await userModel.findByIdAndUpdate(req.body.userId, { cartData: {} });
 
-    // Use mock checkout page (demo payment form)
     const mock_checkout_url = `${CLIENT_DOMAIN}/checkout?orderId=${newOrder._id}&amount=${req.body.amount}`;
-    
+
     return res.json({
       success: true,
       session_url: mock_checkout_url,
@@ -32,10 +32,7 @@ const placeOrder = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.json({
-      success: false,
-      message: "Error placing order. Please try again later.",
-    });
+    return res.json({ success: false, message: "Error placing order. Please try again later." });
   }
 };
 const cod = async (req, res) => {
@@ -59,10 +56,7 @@ const cod = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.json({
-      success: false,
-      message: "Error placing order. Please try again later.",
-    });
+    return res.json({ success: false, message: "Error placing order. Please try again later." });
   }
 };
 
