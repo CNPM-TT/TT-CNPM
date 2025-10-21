@@ -3,15 +3,10 @@ import mongoose from "mongoose";
 const orderSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true },
-    items: [
-      {
-        foodId: { type: mongoose.Schema.Types.ObjectId, ref: 'food', required: true },
-        name: { type: String },
-        price: { type: Number },
-        image: { type: String },
-        quantity: { type: Number, required: true, min: 1 },
-      },
-    ],
+    items: {
+      type: Array,
+      required: true,
+    },
     amount: {
       type: Number,
       required: true,

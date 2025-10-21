@@ -11,18 +11,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 //placing user order from frontend
 const placeOrder = async (req, res) => {
   try {
-    // Compute amount server-side from posted items to avoid trusting client calculation
-    const items = req.body.items || [];
-    const computedAmount = items.reduce((acc, it) => {
-      const price = typeof it.price === 'number' ? it.price : 0;
-      const qty = typeof it.quantity === 'number' ? it.quantity : 0;
-      return acc + price * qty;
-    }, 0);
-
+    // Previous behavior: trust client-provided items and amount
     const newOrder = new orderModel({
       userId: req.body.userId,
-      items,
-      amount: computedAmount,
+      items: req.body.items,
+      amount: req.body.amount,
       address: req.body.address,
       cod: false,
     });
@@ -30,9 +23,8 @@ const placeOrder = async (req, res) => {
     await newOrder.save();
     await userModel.findByIdAndUpdate(req.body.userId, { cartData: {} });
 
-  // Use mock checkout page (demo payment form) — use server-computed amount
-  const mock_checkout_url = `${CLIENT_DOMAIN}/checkout?orderId=${newOrder._id}&amount=${computedAmount}`;
-    
+    const mock_checkout_url = `${CLIENT_DOMAIN}/checkout?orderId=${newOrder._id}&amount=${req.body.amount}`;
+
     return res.json({
       success: true,
       session_url: mock_checkout_url,
@@ -40,25 +32,15 @@ const placeOrder = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.json({
-      success: false,
-      message: "Error placing order. Please try again later.",
-    });
+    return res.json({ success: false, message: "Error placing order. Please try again later." });
   }
 };
 const cod = async (req, res) => {
   try {
-    const items = req.body.items || [];
-    const computedAmount = items.reduce((acc, it) => {
-      const price = typeof it.price === 'number' ? it.price : 0;
-      const qty = typeof it.quantity === 'number' ? it.quantity : 0;
-      return acc + price * qty;
-    }, 0);
-
     const newOrder = new orderModel({
       userId: req.body.userId,
-      items,
-      amount: computedAmount,
+      items: req.body.items,
+      amount: req.body.amount,
       address: req.body.address,
       cod: true,
     });
@@ -70,14 +52,11 @@ const cod = async (req, res) => {
     return res.json({
       success: true,
       session_url: success_url,
-      message: `Your order has been placed. Pay ₹${computedAmount} via cash or online.`,
+      message: `Your order has been placed. Pay ₹${req.body.amount} via cash or online.`,
     });
   } catch (error) {
     console.log(error);
-    return res.json({
-      success: false,
-      message: "Error placing order. Please try again later.",
-    });
+    return res.json({ success: false, message: "Error placing order. Please try again later." });
   }
 };
 
