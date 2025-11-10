@@ -1,11 +1,6 @@
 import { testDbConnection } from './db-connection.test.js';
-import { testLoginSuccess, testLoginFailure } from './login.test.js';
-import { 
-  testRegisterSuccess, 
-  testRegisterDuplicateEmail, 
-  testRegisterInvalidEmail, 
-  testRegisterWeakPassword 
-} from './register.test.js';
+import { runTests as runLoginTests } from './login.test.js';
+import { runTests as runRegisterTests } from './register.test.js';
 
 async function runTest(name, fn) {
   console.log(`\n🔹 Running: ${name}`);
@@ -20,17 +15,16 @@ async function runTest(name, fn) {
 async function main() {
   await runTest('Database Connection', testDbConnection);
   
-  // Registration tests
-  await runTest('Register Success', testRegisterSuccess);
-  await runTest('Register Duplicate Email', testRegisterDuplicateEmail);
-  await runTest('Register Invalid Email', testRegisterInvalidEmail);
-  await runTest('Register Weak Password', testRegisterWeakPassword);
+  // Run all registration tests (with setup and cleanup)
+  console.log('\n📝 Running Registration Tests Suite...');
+  await runRegisterTests();
   
-  // Login tests
-  await runTest('Login Success', testLoginSuccess);
-  await runTest('Login Failure', testLoginFailure);
+  // Run all login tests
+  console.log('\n📝 Running Login Tests Suite...');
+  await runLoginTests();
 
   console.log('\n🎉 All tests completed.');
+  process.exit(0);
 }
 
 main();

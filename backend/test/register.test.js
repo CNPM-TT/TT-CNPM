@@ -12,12 +12,12 @@ const generateTestEmail = () => `test_${Date.now()}_${Math.random().toString(36)
 let testUserEmail = null;
 
 // Setup: Connect to database before tests
-async function setup() {
+export async function setup() {
   await connectDb();
 }
 
 // Cleanup: Delete test user after tests
-async function cleanup() {
+export async function cleanup() {
   if (testUserEmail) {
     console.log(`\n🧹 Cleaning up test user: ${testUserEmail}`);
     try {
@@ -124,26 +124,43 @@ export async function testRegisterWeakPassword() {
 }
 
 // Main test runner
-async function runTests() {
+export async function runTests() {
+  let passed = 0;
+  let failed = 0;
+  const tests = [
+    { name: "Register Success", fn: testRegisterSuccess },
+    { name: "Register Duplicate Email", fn: testRegisterDuplicateEmail },
+    { name: "Register Invalid Email", fn: testRegisterInvalidEmail },
+    { name: "Register Weak Password", fn: testRegisterWeakPassword },
+  ];
+
   try {
     await setup();
     
-    await testRegisterSuccess();
-    await testRegisterDuplicateEmail();
-    await testRegisterInvalidEmail();
-    await testRegisterWeakPassword();
-    
-    console.log("\n✅ All registration tests passed!");
+    for (const test of tests) {
+      try {
+        await test.fn();
+        passed++;
+      } catch (error) {
+        failed++;
+      }
+    }
+
+    console.log("\n" + "=".repeat(50));
+    console.log("📊 Registration Test Suite Summary:");
+    console.log(`   ✅ Passed: ${passed}`);
+    console.log(`   ❌ Failed: ${failed}`);
+    console.log(`   📝 Total:  ${tests.length}`);
+    console.log("=".repeat(50));
+
+    if (failed > 0) {
+      throw new Error(`${failed} registration test(s) failed`);
+    }
   } catch (error) {
     console.error("\n❌ Test suite failed:", error.message);
-    process.exit(1);
+    throw error;
   } finally {
     await cleanup();
-    process.exit(0);
   }
 }
 
-// Run tests if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  runTests();
-}
