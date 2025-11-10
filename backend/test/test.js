@@ -3,6 +3,7 @@ import { runTests as runLoginTests  } from './integration/login.test.js';
 import { runTests as runRegisterTests } from './integration/register.test.js';
 import { runTests as runOrderTests } from './integration/order.test.js';
 import { runTests as runFoodTests } from './integration/food.test.js';
+import { runTests as runCartTests } from './integration/cart.test.js';
 
 async function runTest(name, fn) {
   console.log(`\n🔹 Running: ${name}`);
@@ -29,6 +30,10 @@ async function main() {
   // Run all food tests
   console.log('\n📝 Running Food Tests Suite...');
   await runFoodTests();
+
+  // Run all cart tests
+  console.log('\n📝 Running Cart Tests Suite...');
+  await runCartTests();
 
   console.log('\n🎉 All tests completed.');
   process.exit(0);
