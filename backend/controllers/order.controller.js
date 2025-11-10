@@ -67,26 +67,40 @@ const verifyOrder = async (req, res) => {
     if (success === "true") {
       await orderModel.findByIdAndUpdate(orderId, { payment: true });
       const orderDetails = await orderModel.findById(orderId);
-      sendOrderConfirmNotif(
-        orderDetails.address.email,
-        orderDetails.address.name,
-        orderDetails.address.street,
-        orderDetails.address.phone,
-        orderDetails.amount,
-        false
-      );
+      
+      // Send email (non-blocking)
+      try {
+        sendOrderConfirmNotif(
+          orderDetails.address.email,
+          orderDetails.address.name,
+          orderDetails.address.street,
+          orderDetails.address.phone,
+          orderDetails.amount,
+          false
+        );
+      } catch (emailError) {
+        console.log("Failed to send order confirmation email:", emailError.message);
+      }
+      
       res.json({ success: true, message: "Order Placed." });
     } else if (success === "ok") {
       await orderModel.findByIdAndUpdate(orderId, { payment: false });
       const orderDetails = await orderModel.findById(orderId);
-      sendOrderConfirmNotif(
-        orderDetails.address.email,
-        orderDetails.address.name,
-        orderDetails.address.street,
-        orderDetails.address.phone,
-        orderDetails.amount,
-        true
-      );
+      
+      // Send email (non-blocking)
+      try {
+        sendOrderConfirmNotif(
+          orderDetails.address.email,
+          orderDetails.address.name,
+          orderDetails.address.street,
+          orderDetails.address.phone,
+          orderDetails.amount,
+          true
+        );
+      } catch (emailError) {
+        console.log("Failed to send order confirmation email:", emailError.message);
+      }
+      
       res.json({ success: true, message: "Order Placed via COD." });
     } else {
       await orderModel.findByIdAndDelete(orderId);
@@ -139,15 +153,22 @@ const updateStatus = async (req, res) => {
     });
     
     const orderDetails = await orderModel.findById(req.body.orderId);
-    sendOrderStatusNotif(
-      orderDetails.address.email,
-      orderDetails.address.name,
-      orderDetails.address.street,
-      orderDetails.address.phone,
-      orderDetails.amount,
-      orderDetails.cod,
-      finalStatus
-    );
+    
+    // Send email (non-blocking)
+    try {
+      sendOrderStatusNotif(
+        orderDetails.address.email,
+        orderDetails.address.name,
+        orderDetails.address.street,
+        orderDetails.address.phone,
+        orderDetails.amount,
+        orderDetails.cod,
+        finalStatus
+      );
+    } catch (emailError) {
+      console.log("Failed to send order status email:", emailError.message);
+    }
+    
     res.json({ success: true, message: "Order status updated." });
   } catch (error) {
     console.log(error);
