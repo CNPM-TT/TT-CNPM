@@ -68,8 +68,11 @@ const registerUser = async (req, res) => {
     //token generation
     const token = createToken(user._id);
 
-    //send welcome mail
-    sendWelcomeMail(email, name);
+    //send welcome mail (non-blocking, don't crash if email fails)
+    sendWelcomeMail(email, name).catch((emailError) => {
+      console.log("Failed to send welcome email:", emailError.message);
+    });
+    
     if (user) {
       return res.json({
         success: true,
