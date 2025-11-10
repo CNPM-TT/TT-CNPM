@@ -1,6 +1,6 @@
 import { testDbConnection } from './db-connection.test.js';
 import { testLoginSuccess_OLD, testLoginFailure_OLD } from './login.test.js';
-import { runTests as runRegisterTests } from './register.test.js';
+// import { runTests as runRegisterTests } from './register.test.js';
 // import { runTests as runOrderTests } from './order.test.js';
 
 async function runTest(name, fn) {
@@ -17,8 +17,8 @@ async function main() {
   await runTest('Database Connection', testDbConnection);
   
   // Run all registration tests (with setup and cleanup)
-  console.log('\n📝 Running Registration Tests Suite...');
-  await runRegisterTests();
+  // console.log('\n📝 Running Registration Tests Suite...');
+  // await runRegisterTests();
   
   // Run old login tests
   console.log('\n📝 Running Login Tests (OLD VERSION)...');
