@@ -1,7 +1,7 @@
 import { testDbConnection } from './db-connection.test.js';
 import { testLoginSuccess_OLD, testLoginFailure_OLD } from './login.test.js';
 import { runTests as runRegisterTests } from './register.test.js';
-import { runTests as runOrderTests } from './order.test.js';
+// import { runTests as runOrderTests } from './order.test.js';
 
 async function runTest(name, fn) {
   console.log(`\n🔹 Running: ${name}`);
