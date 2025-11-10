@@ -15,14 +15,15 @@ async function runTest(name, fn) {
 
 async function main() {
   await runTest('Database Connection', testDbConnection);
-  
+
+  await runTest('Login Success', testLoginSuccess);
+  await runTest('Login Failure', testLoginFailure);
   // Run all registration tests (with setup and cleanup)
   console.log('\n📝 Running Registration Tests Suite...');
   await runRegisterTests();
   
   // Run login tests
-  await runTest('Login Success', testLoginSuccess);
-  await runTest('Login Failure', testLoginFailure);
+ 
 
 
   // Run all order tests
