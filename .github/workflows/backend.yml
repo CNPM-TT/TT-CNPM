@@ -15,6 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_PROVIDER: ${{ secrets.DEPLOY_PROVIDER }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      PORT: 5000
+      DOMAIN: http://localhost:5000
     steps:
       - uses: actions/checkout@v4
 
@@ -36,8 +43,6 @@ jobs:
         run: npm run test:unit
 
       - name: Check MONGODB_URI presence (secret)
-        env:
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
         run: |
           if [ -z "$MONGODB_URI" ]; then
             echo "MONGODB_URI is not set in repository secrets"
@@ -46,11 +51,6 @@ jobs:
           fi
 
       - name: Start backend server
-        env:
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: 5000
-          DOMAIN: http://localhost:5000
         run: |
           nohup npm start > backend.log 2>&1 &
           echo "⏳ Waiting for backend to start..."
@@ -64,11 +64,6 @@ jobs:
           done
 
       - name: Run tests
-        env:
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: 5000
-          DOMAIN: http://localhost:5000
         run: npm test
 
 
