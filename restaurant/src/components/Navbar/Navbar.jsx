@@ -1,7 +1,10 @@
 import React from 'react';
 import './navbar.css';
 
-const Navbar = () => {
+const Navbar = ({ onLogout }) => {
+  const restaurantName = localStorage.getItem('restaurant-name') || 'Restaurant';
+  const restaurantCode = localStorage.getItem('restaurant-code') || '';
+
   return (
     <div className="navbar">
       <div className="navbar-content">
@@ -10,9 +13,13 @@ const Navbar = () => {
         </div>
         <div className="navbar-right">
           <div className="restaurant-info">
-            <span className="restaurant-name">Main Kitchen</span>
+            <span className="restaurant-name">{restaurantName}</span>
+            {restaurantCode && <span className="restaurant-code">({restaurantCode})</span>}
             <span className="online-status">● Online</span>
           </div>
+          <button className="logout-btn" onClick={onLogout}>
+            Logout
+          </button>
         </div>
       </div>
     </div>
