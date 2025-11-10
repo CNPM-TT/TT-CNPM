@@ -1,7 +1,7 @@
-import { testDbConnection } from './db-connection.test.js';
-import { runTests as runLoginTests  } from './login.test.js';
-import { runTests as runRegisterTests } from './register.test.js';
-import { runTests as runOrderTests } from './order.test.js';
+import { testDbConnection } from './integration/db-connection.test.js';
+import { runTests as runLoginTests  } from './integration/login.test.js';
+import { runTests as runRegisterTests } from './integration/register.test.js';
+import { runTests as runOrderTests } from './integration/order.test.js';
 
 async function runTest(name, fn) {
   console.log(`\n🔹 Running: ${name}`);
