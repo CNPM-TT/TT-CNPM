@@ -1,8 +1,8 @@
 import axios from "axios";
 import dotenv from "dotenv";
-import userModel from "../../database/models/user.model.js";
-import orderModel from "../../database/models/order.model.js";
-import { connectDb } from "../../database/db.js";
+import userModel from "../../../database/models/user.model.js";
+import orderModel from "../../../database/models/order.model.js";
+import { connectDb } from "../../../database/db.js";
 
 dotenv.config();
 const API_URL = process.env.DOMAIN;
