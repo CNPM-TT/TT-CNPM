@@ -32,8 +32,8 @@ jobs:
             npx eslint backend --ext js --max-warnings=0 || true
           fi
 
-      # - name: Run unit tests (isolated, no dependencies)
-      #   run: npm run test:unit
+      - name: Run unit tests (isolated, no dependencies)
+        run: npm run test:unit
 
       - name: Check MONGODB_URI presence (secret)
         env:
