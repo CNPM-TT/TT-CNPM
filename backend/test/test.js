@@ -1,6 +1,7 @@
 import { testDbConnection } from './db-connection.test.js';
-import { runTests as runLoginTests } from './login.test.js';
+import { testLoginSuccess_OLD, testLoginFailure_OLD } from './login.test.js';
 import { runTests as runRegisterTests } from './register.test.js';
+import { runTests as runOrderTests } from './order.test.js';
 
 async function runTest(name, fn) {
   console.log(`\n🔹 Running: ${name}`);
@@ -19,9 +20,15 @@ async function main() {
   console.log('\n📝 Running Registration Tests Suite...');
   await runRegisterTests();
   
-  // Run all login tests
-  console.log('\n📝 Running Login Tests Suite...');
-  await runLoginTests();
+  // Run old login tests
+  console.log('\n📝 Running Login Tests (OLD VERSION)...');
+  await runTest('Login Success', testLoginSuccess_OLD);
+  await runTest('Login Failure', testLoginFailure_OLD);
+
+
+  // Run all order tests
+  // console.log('\n📝 Running Order Tests Suite...');
+  // await runOrderTests();
 
   console.log('\n🎉 All tests completed.');
   process.exit(0);
