@@ -1,12 +1,20 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import { connectDb } from "../database/db.js";
 import foodRouter from "./routes/food.route.js";
 import userRouter from "./routes/user.route.js";
 import cartRouter from "./routes/cart.route.js";
 import orderRouter from "./routes/order.route.js";
-dotenv.config();
+import restaurantRouter from "./routes/restaurant.route.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env from root directory
+dotenv.config({ path: path.join(__dirname, "..", ".env") });
 // app config
 const app = express();
 
@@ -29,6 +37,9 @@ app.use("/api/cart", cartRouter);
 //order api
 app.use("/api/order", orderRouter)
 
+//restaurant api
+app.use("/api/restaurant", restaurantRouter)
+
 app.get("/", (req,res)=>{
   res.send("Hello")
   console.log("hello")
@@ -37,3 +48,4 @@ app.get("/", (req,res)=>{
 app.listen(process.env.PORT, () => {
   console.log("Server is running in: " + process.env.DOMAIN);
 });
+

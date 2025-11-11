@@ -202,10 +202,11 @@ npm test
 
 **Homepage - Trang chủ**
 ![Homepage](frontend/public/s1.png)
+![Food Menu](frontend/public/s2.png)
 *Giao diện trang chủ với menu thức ăn đa dạng*
 
 **Food Menu - Thực đơn**
-![Food Menu](frontend/public/s2.png)
+![Food Menu](frontend/public/s7.png)
 *Danh sách món ăn theo danh mục với khả năng thêm vào giỏ hàng*
 
 **Cart Page - Giỏ hàng**

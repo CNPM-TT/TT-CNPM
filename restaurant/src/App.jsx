@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Orders from "./pages/Orders/Orders";
 import Login from "./pages/Login/Login";
@@ -10,7 +10,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const auth = localStorage.getItem("restaurant-auth");
@@ -22,9 +21,15 @@ function App() {
   }, []);
 
   const handleLogout = () => {
+    // Clear all restaurant-related localStorage
     localStorage.removeItem("restaurant-auth");
+    localStorage.removeItem("restaurant-token");
+    localStorage.removeItem("restaurant-email");
+    localStorage.removeItem("restaurant-name");
+    localStorage.removeItem("restaurant-code");
+    
     setIsAuthorized(false);
-    navigate("/");
+    window.location.href = "/";
   };
 
   return (
