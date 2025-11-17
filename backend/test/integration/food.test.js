@@ -25,17 +25,17 @@ export async function setup() {
 }
 
 // Cleanup: Delete test food after tests
-export async function cleanup() {
-  if (testFoodId) {
-    console.log(`\n🧹 Cleaning up test food: ${testFoodId}`);
-    try {
-      await foodModel.findByIdAndDelete(testFoodId);
-      console.log("✅ Test food deleted successfully");
-    } catch (error) {
-      console.error("❌ Error deleting test food:", error.message);
-    }
-  }
-}
+// export async function cleanup() {
+//   if (testFoodId) {
+//     console.log(`\n🧹 Cleaning up test food: ${testFoodId}`);
+//     try {
+//       await foodModel.findByIdAndDelete(testFoodId);
+//       console.log("✅ Test food deleted successfully");
+//     } catch (error) {
+//       console.error("❌ Error deleting test food:", error.message);
+//     }
+//   }
+// }
 
 export async function testAddFood() {
   console.log("\n🧪 Testing add food...");
@@ -176,7 +176,7 @@ export async function testUpdateFoodStatus() {
 
 export async function testRemoveFood() {
   console.log("\n🧪 Testing remove food...");
-  
+  console.log("📝 Test food ID:", testFoodId);
   if (!testFoodId) {
     console.log("⚠️  No test food ID available, skipping test");
     return;
@@ -237,10 +237,10 @@ export async function runTests() {
     console.log(`❌ Failed: ${failed}/${tests.length}`);
     console.log("=".repeat(50) + "\n");
 
-    await cleanup();
+
+ 
   } catch (error) {
     console.error("❌ Test suite failed:", error);
-    await cleanup();
     throw error;
   }
   

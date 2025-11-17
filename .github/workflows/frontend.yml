@@ -27,6 +27,13 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
+      - name: Lint frontend
+        working-directory: ./frontend
+        run: |
+          if [ -f .eslintrc.cjs ] || [ -f .eslintrc.js ]; then
+            npm run lint || true
+          fi
+
       - name: Build
         working-directory: ./frontend
         run: npm run build

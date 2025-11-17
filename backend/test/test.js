@@ -10,32 +10,70 @@ async function runTest(name, fn) {
   try {
     await fn();
     console.log(`✅ ${name} passed`);
+    return true;
   } catch (err) {
     console.error(`❌ ${name} failed:`, err.message || err);
+    return false;
   }
 }
 
 async function main() {
-  await runTest('Database Connection', testDbConnection);
+  let failedTests = 0;
+  
+  if (!await runTest('Database Connection', testDbConnection)) failedTests++;
 
-  await runLoginTests();
+  // Run all login tests
+  console.log('\n📝 Running Login Tests Suite...');
+  try {
+    await runLoginTests();
+  } catch (err) {
+    console.error('❌ Login tests suite failed:', err.message);
+    failedTests++;
+  }
+
   // Run all registration tests (with setup and cleanup)
   console.log('\n📝 Running Registration Tests Suite...');
-  await runRegisterTests();
+  try {
+    await runRegisterTests();
+  } catch (err) {
+    console.error('❌ Registration tests suite failed:', err.message);
+    failedTests++;
+  }
   
   // Run all order tests
   console.log('\n📝 Running Order Tests Suite...');
-  await runOrderTests();
+  try {
+    await runOrderTests();
+  } catch (err) {
+    console.error('❌ Order tests suite failed:', err.message);
+    failedTests++;
+  }
 
   // Run all food tests
   console.log('\n📝 Running Food Tests Suite...');
-  await runFoodTests();
+  try {
+    await runFoodTests();
+  } catch (err) {
+    console.error('❌ Food tests suite failed:', err.message);
+    failedTests++;
+  }
 
   // Run all cart tests
   console.log('\n📝 Running Cart Tests Suite...');
-  await runCartTests();
+  try {
+    await runCartTests();
+  } catch (err) {
+    console.error('❌ Cart tests suite failed:', err.message);
+    failedTests++;
+  }
 
   console.log('\n🎉 All tests completed.');
+  
+  if (failedTests > 0) {
+    console.error(`\n❌ ${failedTests} test suite(s) failed`);
+    process.exit(1);
+  }
+  
   process.exit(0);
 }
 
