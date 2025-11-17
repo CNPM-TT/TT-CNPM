@@ -1,5 +1,7 @@
 import foodModel from "../../database/models/food.model.js";
 import fs from "fs";
+import userModel from "../../database/models/user.model.js";
+import cloudinary from "../middleware/cloudinary.config.js";
 
 //add food
 const addFood = async (req, res) => {
@@ -117,7 +119,21 @@ const updateFoodStatus = async (req, res) => {
 const removeFood = async (req, res) => {
   try {
     const food = await foodModel.findById(req.body.id);
-    fs.unlink(`uploads/${food.image}`, () => {});
+    
+    // Comment out old local file deletion (doesn't work with Cloudinary)
+    // fs.unlink(`uploads/${food.image}`, () => {});
+    
+    // Delete from Cloudinary instead
+    if (food.image && food.image.includes('cloudinary.com')) {
+      // Extract public_id from URL
+      // From: https://res.cloudinary.com/.../upload/v123/tomato/1234-burger.jpg.jpg
+      // Get: tomato/1234-burger.jpg
+      const parts = food.image.split('/upload/')[1]; // Get everything after "/upload/"
+      const publicId = parts.split('/').slice(1).join('/'); // Skip version, get "tomato/1234-burger.jpg.jpg"
+      const finalId = publicId.substring(0, publicId.lastIndexOf('.')); // Remove last .jpg -> "tomato/1234-burger.jpg"
+      console.log('Deleting from Cloudinary with public_id:', finalId);
+      await cloudinary.uploader.destroy(finalId);
+    }
 
     await foodModel.findByIdAndDelete(req.body.id);
     
