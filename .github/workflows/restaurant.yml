@@ -31,7 +31,7 @@ jobs:
         working-directory: ./restaurant
         run: |
           if [ -f .eslintrc.cjs ] || [ -f .eslintrc.js ]; then
-            npm run lint || true
+            npm run lint
           fi
 
       - name: Build

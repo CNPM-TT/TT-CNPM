@@ -36,11 +36,12 @@ jobs:
       - name: Lint backend (if ESLint configured)
         run: |
           if [ -f backend/.eslintrc.json ] || [ -f backend/.eslintrc.js ]; then
-            npx eslint backend --ext js --max-warnings=0 || true
+            npx eslint backend --ext js --max-warnings=0
           fi
 
       - name: Run unit tests (isolated, no dependencies)
         run: npm run test:unit
+        continue-on-error: false
 
       - name: Check MONGODB_URI presence (secret)
         run: |
@@ -65,6 +66,7 @@ jobs:
 
       - name: Run tests
         run: npm test
+        continue-on-error: false
 
 
       - name: Upload backend artifact

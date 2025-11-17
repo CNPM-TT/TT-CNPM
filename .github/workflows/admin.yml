@@ -27,6 +27,13 @@ jobs:
         working-directory: ./admin
         run: npm install
 
+      - name: Lint admin panel
+        working-directory: ./admin
+        run: |
+          if [ -f .eslintrc.cjs ] || [ -f .eslintrc.js ]; then
+            npm run lint
+          fi
+
       - name: Build
         working-directory: ./admin
         run: npm run build
