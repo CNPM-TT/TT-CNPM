@@ -4,6 +4,7 @@ import { runTests as runRegisterTests } from './integration/register.test.js';
 import { runTests as runOrderTests } from './integration/order.test.js';
 import { runTests as runFoodTests } from './integration/food.test.js';
 import { runTests as runCartTests } from './integration/cart.test.js';
+import { runTests as runRestaurantTests } from './integration/restaurant.test.js';
 
 async function runTest(name, fn) {
   console.log(`\n🔹 Running: ${name}`);
@@ -64,6 +65,15 @@ async function main() {
     await runCartTests();
   } catch (err) {
     console.error('❌ Cart tests suite failed:', err.message);
+    failedTests++;
+  }
+
+  // Run all restaurant tests
+  console.log('\n📝 Running Restaurant Tests Suite...');
+  try {
+    await runRestaurantTests();
+  } catch (err) {
+    console.error('❌ Restaurant tests suite failed:', err.message);
     failedTests++;
   }
 

@@ -2,24 +2,24 @@
 // Tests individual functions with mock objects (no external dependencies)
 
 // Mock request and response objects
-function createMockReq(body = {}, params = {}) {
-  return {
-    body,
-    params,
-  };
-}
+// function createMockReq(body = {}, params = {}) {
+//   return {
+//     body,
+//     params,
+//   };
+// }
 
-function createMockRes() {
-  const res = {
-    data: null,
-    status: 200,
-    json: function(data) {
-      this.data = data;
-      return this;
-    }
-  };
-  return res;
-}
+// function createMockRes() {
+//   const res = {
+//     data: null,
+//     status: 200,
+//     json: function(data) {
+//       this.data = data;
+//       return this;
+//     }
+//   };
+//   return res;
+// }
 
 // Mock database models
 const mockOrders = [];
