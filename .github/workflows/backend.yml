@@ -65,8 +65,21 @@ jobs:
           done
 
       - name: Run tests
-        run: npm test
-        continue-on-error: false
+        run: npm test 2>&1 | tee test-output.log
+        continue-on-error: true
+        id: test-step
+
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: test-output.log
+          retention-days: 7
+
+      - name: Fail if tests failed
+        if: steps.test-step.outcome == 'failure'
+        run: exit 1
 
 
       - name: Upload backend artifact
