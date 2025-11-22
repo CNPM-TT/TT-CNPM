@@ -99,32 +99,25 @@ jobs:
             exit 0
           fi
           
-          # Read test log
-          LOG_CONTENT=$(cat test-output.log | jq -Rs .)
-          TIMESTAMP=$(date +%s)000000000
+          # Read test log and send each line as separate entry
+          echo '{"streams":[{"stream":{"job":"github-actions","app":"backend-tests","workflow":"${{ github.workflow }}","repository":"${{ github.repository }}","branch":"${{ github.ref_name }}","commit":"${{ github.sha }}","run_id":"${{ github.run_id }}","status":"failure"},"values":[' > loki-payload.json
           
-          # Create JSON payload for Loki
-          cat > loki-payload.json << EOF
-          {
-            "streams": [
-              {
-                "stream": {
-                  "job": "github-actions",
-                  "app": "backend-tests",
-                  "workflow": "${{ github.workflow }}",
-                  "repository": "${{ github.repository }}",
-                  "branch": "${{ github.ref_name }}",
-                  "commit": "${{ github.sha }}",
-                  "run_id": "${{ github.run_id }}",
-                  "status": "failure"
-                },
-                "values": [
-                  ["${TIMESTAMP}", ${LOG_CONTENT}]
-                ]
-              }
-            ]
-          }
-          EOF
+          # Process log file line by line
+          first=true
+          while IFS= read -r line || [ -n "$line" ]; do
+            # Escape the line for JSON
+            escaped_line=$(echo "$line" | jq -Rs .)
+            timestamp=$(date +%s%N)
+            
+            if [ "$first" = true ]; then
+              echo "[\"$timestamp\",$escaped_line]" >> loki-payload.json
+              first=false
+            else
+              echo ",[\"$timestamp\",$escaped_line]" >> loki-payload.json
+            fi
+          done < test-output.log
+          
+          echo ']}]}' >> loki-payload.json
           
           # Send to Loki
           curl -X POST "$LOKI_URL" \
