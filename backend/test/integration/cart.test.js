@@ -221,6 +221,11 @@ export async function runTests() {
     console.log("=".repeat(50) + "\n");
 
     await cleanup();
+    
+    // Throw error if any tests failed
+    if (failed > 0) {
+      throw new Error(`${failed} cart test(s) failed`);
+    }
   } catch (error) {
     console.error("❌ Test suite failed:", error);
     await cleanup();
