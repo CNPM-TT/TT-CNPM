@@ -87,6 +87,52 @@ jobs:
           path: test-output.log
           retention-days: 7
 
+      - name: Send logs to Grafana Loki
+        if: always() && steps.test-step.outcome == 'failure'
+        env:
+          LOKI_URL: ${{ secrets.LOKI_URL }}
+          LOKI_USER: ${{ secrets.LOKI_USER }}
+          LOKI_API_KEY: ${{ secrets.LOKI_API_KEY }}
+        run: |
+          if [ -z "$LOKI_URL" ] || [ -z "$LOKI_USER" ] || [ -z "$LOKI_API_KEY" ]; then
+            echo "Loki credentials not configured, skipping log upload"
+            exit 0
+          fi
+          
+          # Read test log
+          LOG_CONTENT=$(cat test-output.log | jq -Rs .)
+          TIMESTAMP=$(date +%s)000000000
+          
+          # Create JSON payload for Loki
+          cat > loki-payload.json << EOF
+          {
+            "streams": [
+              {
+                "stream": {
+                  "job": "github-actions",
+                  "app": "backend-tests",
+                  "workflow": "${{ github.workflow }}",
+                  "repository": "${{ github.repository }}",
+                  "branch": "${{ github.ref_name }}",
+                  "commit": "${{ github.sha }}",
+                  "run_id": "${{ github.run_id }}",
+                  "status": "failure"
+                },
+                "values": [
+                  ["${TIMESTAMP}", ${LOG_CONTENT}]
+                ]
+              }
+            ]
+          }
+          EOF
+          
+          # Send to Loki
+          curl -X POST "$LOKI_URL" \
+            -H "Content-Type: application/json" \
+            -u "${LOKI_USER}:${LOKI_API_KEY}" \
+            -d @loki-payload.json \
+            --fail-with-body || echo "Failed to send logs to Loki"
+
       - name: Fail if tests failed
         if: steps.test-step.outcome == 'failure'
         run: exit 1
