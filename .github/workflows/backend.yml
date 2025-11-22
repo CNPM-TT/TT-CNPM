@@ -65,9 +65,19 @@ jobs:
           done
 
       - name: Run tests
-        run: npm test 2>&1 | tee test-output.log
+        run: npm test > test-output.log 2>&1
         continue-on-error: true
         id: test-step
+
+      - name: Check test result
+        run: |
+          echo "Test step outcome: ${{ steps.test-step.outcome }}"
+          if [ -f test-output.log ]; then
+            echo "Test log file exists"
+            ls -lh test-output.log
+          else
+            echo "Test log file NOT found"
+          fi
 
       - name: Upload test logs on failure
         if: steps.test-step.outcome == 'failure'
