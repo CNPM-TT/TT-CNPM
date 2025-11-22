@@ -99,12 +99,12 @@ export async function testGetCartData() {
     const res = await axios.post(
       `${API_URL}/api/cart/get`,
       {
-        userId: testUserId
+        // userId: testUserId
       },
       {
-        headers: {
-          token: testUserToken
-        }
+        // headers: {
+        //   token: testUserToken
+        // }
       }
     );
 
