@@ -209,6 +209,7 @@ export async function testRemoveFood() {
 export async function runTests() {
   let passed = 0;
   let failed = 0;
+  const failedTests = [];
   const tests = [
     { name: "Add Food", fn: testAddFood },
     { name: "Get All Foods", fn: testGetFoods },
@@ -227,6 +228,7 @@ export async function runTests() {
         passed++;
       } catch (error) {
         failed++;
+        failedTests.push(test.name);
       }
     }
 
@@ -237,12 +239,18 @@ export async function runTests() {
     console.log(`❌ Failed: ${failed}/${tests.length}`);
     console.log("=".repeat(50) + "\n");
 
-
- 
+    if (failed > 0) {
+      const error = new Error(`${failed} food test(s) failed`);
+      error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Food' };
+      throw error;
+    }
   } catch (error) {
-    console.error("❌ Test suite failed:", error);
+    console.error("❌ Test suite failed:", error.message);
+    if (!error.testResults) {
+      error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Food' };
+    }
     throw error;
   }
   
-  return { passed, failed, total: tests.length };
+  return { passed, failed, total: tests.length, failedTests, suiteName: 'Food' };
 }

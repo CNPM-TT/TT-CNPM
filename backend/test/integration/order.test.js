@@ -284,6 +284,7 @@ export async function testVerifyOrderFailure() {
 export async function runTests() {
   let passed = 0;
   let failed = 0;
+  const failedTests = [];
   const tests = [
     { name: "Place Order", fn: testPlaceOrder },
     { name: "Verify Order Success", fn: testVerifyOrderSuccess },
@@ -302,6 +303,7 @@ export async function runTests() {
         passed++;
       } catch (error) {
         failed++;
+        failedTests.push(test.name);
       }
     }
 
@@ -313,14 +315,21 @@ export async function runTests() {
     console.log("=".repeat(50));
 
     if (failed > 0) {
-      throw new Error(`${failed} order test(s) failed`);
+      const error = new Error(`${failed} order test(s) failed`);
+      error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Order' };
+      throw error;
     }
   } catch (error) {
     console.error("\n❌ Test suite failed:", error.message);
+    if (!error.testResults) {
+      error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Order' };
+    }
     throw error;
   } finally {
     await cleanup();
   }
+  
+  return { passed, failed, total: tests.length, failedTests, suiteName: 'Order' };
 }
 
 // Run tests if this file is executed directly

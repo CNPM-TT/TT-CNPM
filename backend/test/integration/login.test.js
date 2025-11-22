@@ -74,6 +74,7 @@ export async function testLoginNonExistentUser() {
 export async function runTests() {
   let passed = 0;
   let failed = 0;
+  const failedTests = [];
   const tests = [
     { name: "Login Success", fn: testLoginSuccess },
     { name: "Login Failure (Wrong Password)", fn: testLoginFailure },
@@ -86,6 +87,7 @@ export async function runTests() {
       passed++;
     } catch (error) {
       failed++;
+      failedTests.push(test.name);
     }
   }
 
@@ -97,8 +99,12 @@ export async function runTests() {
   console.log("=".repeat(50));
 
   if (failed > 0) {
-    throw new Error(`${failed} login test(s) failed`);
+    const error = new Error(`${failed} login test(s) failed`);
+    error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Login' };
+    throw error;
   }
+  
+  return { passed, failed, total: tests.length, failedTests, suiteName: 'Login' };
 }
 
 // Run tests if this file is executed directly

@@ -194,6 +194,7 @@ export async function testRemoveFromEmptyCart() {
 export async function runTests() {
   let passed = 0;
   let failed = 0;
+  const failedTests = [];
   const tests = [
     { name: "Add to Cart", fn: testAddToCart },
     { name: "Get Cart Data", fn: testGetCartData },
@@ -210,6 +211,7 @@ export async function runTests() {
         passed++;
       } catch (error) {
         failed++;
+        failedTests.push(test.name);
       }
     }
 
@@ -224,13 +226,18 @@ export async function runTests() {
     
     // Throw error if any tests failed
     if (failed > 0) {
-      throw new Error(`${failed} cart test(s) failed`);
+      const error = new Error(`${failed} cart test(s) failed`);
+      error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Cart' };
+      throw error;
     }
   } catch (error) {
-    console.error("❌ Test suite failed:", error);
+    console.error("❌ Test suite failed:", error.message);
     await cleanup();
+    if (!error.testResults) {
+      error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Cart' };
+    }
     throw error;
   }
   
-  return { passed, failed, total: tests.length };
+  return { passed, failed, total: tests.length, failedTests, suiteName: 'Cart' };
 }
