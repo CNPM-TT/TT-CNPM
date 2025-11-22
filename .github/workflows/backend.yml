@@ -70,7 +70,7 @@ jobs:
         id: test-step
 
       - name: Upload test logs on failure
-        if: failure()
+        if: steps.test-step.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: test-logs
