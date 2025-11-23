@@ -1,74 +1,47 @@
 # Grafana Cloud Prometheus Setup for Render Backend
 
-This guide shows how to push metrics from your Render backend to Grafana Cloud Prometheus.
+This guide shows how to monitor your Render backend metrics with Grafana Cloud.
 
-## Step 1: Get Prometheus Credentials from Grafana Cloud
+## The Problem with Push from Render
+
+Pushing metrics from Render to Grafana Cloud requires the Prometheus Remote Write protocol (Protobuf + Snappy compression), which is complex to implement. Instead, we'll use **Grafana Cloud to scrape** your metrics endpoint.
+
+## Solution: Let Grafana Cloud Scrape Your Metrics
+
+Your backend already exposes metrics at `/metrics`. We'll configure Grafana Cloud to scrape this endpoint.
+
+## Step 1: Verify Your Metrics Endpoint
+
+1. **Visit your metrics endpoint:**
+   - URL: `https://tt-cnpm.onrender.com/metrics`
+   - You should see Prometheus-format metrics like:
+     ```
+     # HELP http_request_duration_seconds Request duration
+     # TYPE http_request_duration_seconds histogram
+     http_request_duration_seconds_bucket{le="0.1",path="/api/user/login",method="POST",status_code="200"} 5
+     ```
+
+## Step 2: Configure Grafana Cloud to Scrape
+
+### Option A: Using Grafana Alloy (Recommended for Render)
+
+Since Render doesn't allow you to install agents, we'll use **Grafana Cloud's Hosted Prometheus** with external scraping:
 
 1. **Go to Grafana Cloud:**
-   - Visit: https://grafana.com/
-   - Sign in to your account
+   - Visit: https://grafana.com/orgs/[your-org]/stacks
+   - Click your stack → **Integrations**
 
-2. **Navigate to your Stack:**
-   - Go to: https://grafana.com/orgs/[your-org]/stacks
-   - Click on your **tklegend** stack
+2. **Add Prometheus Scrape Config:**
+   - Unfortunately, Grafana Cloud free tier doesn't support external scraping directly
+   - We need to use **Synthetic Monitoring** or run **Grafana Alloy** elsewhere
 
-3. **Find Prometheus Details:**
-   - Look for the **"Prometheus"** or **"Metrics"** section
-   - Copy the **Remote Write Endpoint** 
-     - Format: `https://prometheus-prod-XX-XX.grafana.net/api/prom/push`
-   - Note the **Username/Instance ID** (e.g., `1398414`)
+### Option B: Run Grafana Alloy on Your Local Machine (Development)
 
-4. **Generate API Token:**
-   - Go to: https://grafana.com/orgs/[your-org]/access-policies
-   - Click **"Create access policy"**
-   - Name: `Render Backend Metrics`
-   - Scopes: Select **"metrics:write"** ✓
-   - Click **"Create"**
-   - Click **"Add token"**
-   - Name: `render-metrics`
-   - Click **"Create token"**
-   - **COPY THE TOKEN** (starts with `glc_...`)
+1. **Download Grafana Alloy:**
+   - Windows: https://github.com/grafana/alloy/releases
+   - Or use Docker: `docker run -v /path/to/config.alloy:/etc/alloy/config.alloy grafana/alloy`
 
-## Step 2: Add Environment Variables to Render
-
-1. **Go to Render Dashboard:**
-   - Visit: https://dashboard.render.com/
-   - Select your **TT-CNPM backend** service
-
-2. **Add Environment Variables:**
-   - Go to **Environment** tab
-   - Click **"Add Environment Variable"**
-   
-   Add these three variables:
-   
-   **Variable 1:**
-   - Key: `PROMETHEUS_REMOTE_WRITE_URL`
-   - Value: `https://prometheus-prod-XX-XX.grafana.net/api/prom/push`
-   
-   **Variable 2:**
-   - Key: `PROMETHEUS_USER`
-   - Value: `1398414` (your instance ID)
-   
-   **Variable 3:**
-   - Key: `PROMETHEUS_PASSWORD`
-   - Value: `glc_...` (the API token you generated)
-
-3. **Save Changes** - Render will automatically redeploy
-
-## Step 3: Deploy and Verify
-
-1. **Commit and push your code:**
-   ```bash
-   git add .
-   git commit -m "feat: add Prometheus metrics push to Grafana Cloud"
-   git push origin develop
-   ```
-
-2. **Wait for Render to deploy** (~2-3 minutes)
-
-3. **Check Render logs:**
-   - Look for: `📊 Metrics pusher started - sending to Grafana Cloud every 30s`
-   - Look for: `✅ Metrics pushed to Grafana Cloud`
+2. **Create Alloy config file** (`config.alloy`):
 
 ## Step 4: View Metrics in Grafana
 
