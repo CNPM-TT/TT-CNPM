@@ -127,6 +127,7 @@ export async function testRegisterWeakPassword() {
 export async function runTests() {
   let passed = 0;
   let failed = 0;
+  const failedTests = [];
   const tests = [
     { name: "Register Success", fn: testRegisterSuccess },
     { name: "Register Duplicate Email", fn: testRegisterDuplicateEmail },
@@ -143,6 +144,7 @@ export async function runTests() {
         passed++;
       } catch (error) {
         failed++;
+        failedTests.push(test.name);
       }
     }
 
@@ -154,13 +156,20 @@ export async function runTests() {
     console.log("=".repeat(50));
 
     if (failed > 0) {
-      throw new Error(`${failed} registration test(s) failed`);
+      const error = new Error(`${failed} registration test(s) failed`);
+      error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Registration' };
+      throw error;
     }
   } catch (error) {
     console.error("\n❌ Test suite failed:", error.message);
+    if (!error.testResults) {
+      error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Registration' };
+    }
     throw error;
   } finally {
     await cleanup();
   }
+  
+  return { passed, failed, total: tests.length, failedTests, suiteName: 'Registration' };
 }
 
