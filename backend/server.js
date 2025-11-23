@@ -10,6 +10,7 @@ import cartRouter from "./routes/cart.route.js";
 import orderRouter from "./routes/order.route.js";
 import restaurantRouter from "./routes/restaurant.route.js";
 import metricsMiddleware from "./middleware/metrics.js";
+import { startMetricsPusher } from "./utils/metricsPusher.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,5 +53,8 @@ app.get("/", (req,res)=>{
 
 app.listen(process.env.PORT, () => {
   console.log("Server is running in: " + process.env.DOMAIN);
+  
+  // Start pushing metrics to Grafana Cloud
+  startMetricsPusher();
 });
 
