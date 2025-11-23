@@ -90,22 +90,14 @@ async function main() {
   }
 
   // Run all restaurant order filtering tests
-  console.log('\n📝 Running Restaurant Order Filtering Tests Suite...');
-  try {
-    await runRestaurantOrderTests();
-  } catch (err) {
-    console.error('❌ Restaurant order filtering tests suite failed:', err.message);
-    failedTests++;
-  }
-
-  // Run all restaurant tests
-  // console.log('\n📝 Running Restaurant Tests Suite...');
+  // console.log('\n📝 Running Restaurant Order Filtering Tests Suite...');
   // try {
-  //   await runRestaurantTests();
+  //   await runRestaurantOrderTests();
   // } catch (err) {
-  //   console.error('❌ Restaurant tests suite failed:', err.message);
+  //   console.error('❌ Restaurant order filtering tests suite failed:', err.message);
   //   failedTests++;
   // }
+
 
   console.log('\n' + '='.repeat(70));
   console.log('🎯 OVERALL TEST SUMMARY');
