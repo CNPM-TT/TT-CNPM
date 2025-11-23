@@ -2,6 +2,8 @@ import express from 'express';
 import { 
   getAllRestaurants, 
   getRestaurantByEmail, 
+  getRestaurantById,
+  getRestaurantsList,
   loginRestaurant, 
   registerRestaurant, 
   updateRestaurantByEmail,
@@ -14,10 +16,11 @@ const restaurantRouter = express.Router();
 // Public routes
 restaurantRouter.post("/register", registerRestaurant);
 restaurantRouter.post("/login", loginRestaurant);
+restaurantRouter.get("/list", getRestaurantsList); // For customer frontend
+restaurantRouter.get("/:id", getRestaurantById); // For restaurant details
 
-// Protected routes
+// Protected routes (admin only)
 restaurantRouter.get("/", authMiddleware, getAllRestaurants);
-restaurantRouter.get("/list", authMiddleware, getAllRestaurants);
 restaurantRouter.post("/getByEmail", authMiddleware, getRestaurantByEmail);
 restaurantRouter.post("/updateByEmail", authMiddleware, updateRestaurantByEmail);
 restaurantRouter.post("/updateStatus", authMiddleware, updateRestaurantStatus);

@@ -214,11 +214,56 @@ const updateRestaurantStatus = async (req, res) => {
   }
 };
 
+// Get restaurant by ID
+const getRestaurantById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const restaurant = await restaurantModel.findById(id).select('-password');
+    
+    if (restaurant) {
+      return res.json({ 
+        success: true, 
+        data: restaurant, 
+        message: "Restaurant found." 
+      });
+    } else {
+      return res.json({ 
+        success: false, 
+        message: "Restaurant not found." 
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: "Error. Try again later." });
+  }
+};
+
+// Get active restaurants list (for customer frontend)
+const getRestaurantsList = async (req, res) => {
+  try {
+    const restaurants = await restaurantModel
+      .find({ isActive: true })
+      .select('-password')
+      .sort({ rating: -1, createdAt: -1 });
+    
+    return res.json({ 
+      success: true, 
+      data: restaurants, 
+      message: "Restaurants list fetched successfully." 
+    });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: "Error. Try again later." });
+  }
+};
+
 export { 
   loginRestaurant, 
   registerRestaurant, 
   getAllRestaurants, 
   getRestaurantByEmail, 
   updateRestaurantByEmail,
-  updateRestaurantStatus
+  updateRestaurantStatus,
+  getRestaurantById,
+  getRestaurantsList
 };
