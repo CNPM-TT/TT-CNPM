@@ -11,13 +11,27 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 //placing user order from frontend
 const placeOrder = async (req, res) => {
   try {
-    // Previous behavior: trust client-provided items and amount
+    // Extract unique restaurantIds from order items
+    const restaurantIds = [...new Set(
+      req.body.items
+        .map(item => item.restaurantId)
+        .filter(id => id) // Remove undefined/null
+    )];
+
+    // Initialize restaurantStatus for each restaurant
+    const restaurantStatus = new Map();
+    restaurantIds.forEach(id => {
+      restaurantStatus.set(id.toString(), "Food Processing");
+    });
+
     const newOrder = new orderModel({
       userId: req.body.userId,
       items: req.body.items,
       amount: req.body.amount,
       address: req.body.address,
       cod: false,
+      restaurantIds: restaurantIds,
+      restaurantStatus: restaurantStatus,
     });
 
     await newOrder.save();
@@ -37,12 +51,27 @@ const placeOrder = async (req, res) => {
 };
 const cod = async (req, res) => {
   try {
+    // Extract unique restaurantIds from order items
+    const restaurantIds = [...new Set(
+      req.body.items
+        .map(item => item.restaurantId)
+        .filter(id => id) // Remove undefined/null
+    )];
+
+    // Initialize restaurantStatus for each restaurant
+    const restaurantStatus = new Map();
+    restaurantIds.forEach(id => {
+      restaurantStatus.set(id.toString(), "Food Processing");
+    });
+
     const newOrder = new orderModel({
       userId: req.body.userId,
       items: req.body.items,
       amount: req.body.amount,
       address: req.body.address,
       cod: true,
+      restaurantIds: restaurantIds,
+      restaurantStatus: restaurantStatus,
     });
 
     await newOrder.save();
@@ -172,4 +201,92 @@ const updateStatus = async (req, res) => {
     });
   }
 };
-export { placeOrder, cod, verifyOrder, userOrder, listOrders, updateStatus };
+
+// Get orders for specific restaurant (restaurant panel)
+const getRestaurantOrders = async (req, res) => {
+  try {
+    const restaurantId = req.restaurantId; // From authRestaurant middleware
+    
+    // Find all orders that contain items from this restaurant
+    const orders = await orderModel.find({
+      restaurantIds: restaurantId,
+      $or: [{ payment: true }, { cod: true }], // Include both paid and COD orders
+    }).sort({ date: -1 });
+
+    res.json({ 
+      success: true, 
+      data: orders,
+      message: "Restaurant orders fetched successfully." 
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error fetching restaurant orders." });
+  }
+};
+
+// Update order status for specific restaurant
+const updateRestaurantOrderStatus = async (req, res) => {
+  try {
+    const restaurantId = req.restaurantId; // From authRestaurant middleware
+    const { orderId, status } = req.body;
+
+    const order = await orderModel.findById(orderId);
+    
+    if (!order) {
+      return res.json({ success: false, message: "Order not found." });
+    }
+
+    // Verify this restaurant is part of the order
+    if (!order.restaurantIds.includes(restaurantId)) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "You don't have permission to update this order." 
+      });
+    }
+
+    // Update status for this specific restaurant
+    if (!order.restaurantStatus) {
+      order.restaurantStatus = new Map();
+    }
+    order.restaurantStatus.set(restaurantId.toString(), status);
+
+    // If all restaurants are done, update main order status
+    const allStatuses = Array.from(order.restaurantStatus.values());
+    if (allStatuses.every(s => s === "Delivered" || s === "Out for Delivery")) {
+      order.status = "Delivered";
+    } else if (allStatuses.some(s => s === "Out for Delivery")) {
+      order.status = "Out for Delivery";
+    } else if (allStatuses.some(s => s === "Ready for Pickup")) {
+      order.status = "Ready for Pickup";
+    } else if (allStatuses.some(s => s === "Preparing")) {
+      order.status = "Preparing";
+    }
+
+    await order.save();
+    
+    // Send email notification if fully delivered
+    if (order.status === "Delivered") {
+      sendOrderStatusNotif(
+        order.address.email,
+        order.address.name,
+        order.address.street,
+        order.address.phone,
+        order.amount,
+        order.cod,
+        "Delivered"
+      ).catch((emailError) => {
+        console.log("Failed to send order status email:", emailError.message);
+      });
+    }
+    
+    res.json({ success: true, message: "Order status updated." });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      success: false,
+      message: "Failed to update order. Try again later.",
+    });
+  }
+};
+
+export { placeOrder, cod, verifyOrder, userOrder, listOrders, updateStatus, getRestaurantOrders, updateRestaurantOrderStatus };

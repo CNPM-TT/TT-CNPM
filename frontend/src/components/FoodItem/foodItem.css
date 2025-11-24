@@ -64,6 +64,16 @@
     font-size: 20px;
     font-weight: 500;
 }
+.food-item-restaurant {
+    color: #ff6b6b;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: -5px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
 .food-item-name-rating img{
     width: 70px;
     border-radius: 0;

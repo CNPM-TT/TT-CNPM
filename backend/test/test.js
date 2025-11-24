@@ -99,6 +99,7 @@ async function main() {
     suiteResults.push(err.testResults || { suiteName: 'Restaurant', passed: 0, failed: 0, total: 0, failedTests: [] });
   }
 
+
   console.log('\n' + '='.repeat(70));
   console.log('🎯 OVERALL TEST SUMMARY');
   console.log('='.repeat(70));

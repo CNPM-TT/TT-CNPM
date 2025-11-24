@@ -32,6 +32,13 @@ function Navbar({ setShowLogin }) {
           >
             Home
           </Link>
+          <Link
+            to="/restaurants"
+            className={menu === "restaurants" ? "active" : ""}
+            onClick={() => setMenu("restaurants")}
+          >
+            Restaurants
+          </Link>
           <a
             href="#explore-menu"
             className={menu === "menu" ? "active" : ""}
