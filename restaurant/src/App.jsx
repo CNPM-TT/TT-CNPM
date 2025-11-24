@@ -5,6 +5,8 @@ import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Orders from "./pages/Orders/Orders";
 import Login from "./pages/Login/Login";
+import AddFood from "./pages/AddFood/AddFood";
+import ListFood from "./pages/ListFood/ListFood";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -57,6 +59,8 @@ function App() {
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/add-food" element={<AddFood />} />
+                <Route path="/list-food" element={<ListFood />} />
                 <Route path="/orders/*" element={<Orders />} />
                 <Route path="/orders/new" element={<Orders />} />
                 <Route path="/orders/preparing" element={<Orders />} />

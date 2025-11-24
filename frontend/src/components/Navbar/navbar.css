@@ -43,16 +43,25 @@
     gap: 40px;
     color: #49557e;
     font-size: 18px;
+    font-weight: 500;
 }
 
 .navbar li {
-
     cursor: pointer;
+}
+
+.navbar a {
+    transition: all 0.3s ease;
+}
+
+.navbar a:hover {
+    color: tomato;
 }
 
 .navbar .active {
     padding-bottom: 4px;
-    border-bottom: 2px solid #49557e;
+    border-bottom: 2px solid tomato;
+    color: tomato;
 }
 
 .navbar-right {
