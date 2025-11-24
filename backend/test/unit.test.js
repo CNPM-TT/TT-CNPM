@@ -3,6 +3,7 @@ import { runUnitTests as runOrderUnitTests } from './unit/order.controller.unit.
 import { runFoodControllerUnitTests } from './unit/food.controller.unit.test.js';
 import { runCartControllerUnitTests } from './unit/cart.controller.unit.test.js';
 import { runRestaurantControllerUnitTests } from './unit/restaurant.controller.unit.test.js';
+import { runUnitTests as runRestaurantOrderUnitTests } from './unit/restaurant-order.controller.unit.test.js';
 
 async function runTest(name, fn) {
   console.log(`\n🔹 Running: ${name}`);
@@ -39,6 +40,10 @@ async function main() {
   // Run restaurant controller unit tests
   console.log('\n📝 Running Restaurant Controller Unit Tests...');
   await runRestaurantControllerUnitTests();
+
+  // Run restaurant order filtering unit tests
+  console.log('\n📝 Running Restaurant Order Filtering Unit Tests...');
+  await runRestaurantOrderUnitTests();
 
   console.log('\n' + '='.repeat(60));
   console.log('🎉 All unit tests completed.');

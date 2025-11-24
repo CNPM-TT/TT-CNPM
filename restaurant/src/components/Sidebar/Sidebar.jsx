@@ -10,6 +10,16 @@ const Sidebar = () => {
           <span className="icon">📊</span>
           <p>Dashboard</p>
         </NavLink>
+
+        <NavLink to="/add-food" className="sidebar-option">
+          <span className="icon">🍽️</span>
+          <p>Add Food</p>
+        </NavLink>
+
+        <NavLink to="/list-food" className="sidebar-option">
+          <span className="icon">📋</span>
+          <p>My Menu</p>
+        </NavLink>
         
         <NavLink to="/orders/new" className="sidebar-option">
           <span className="icon">🆕</span>

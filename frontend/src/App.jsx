@@ -12,6 +12,8 @@ import Verify from "./pages/Verify/Verify";
 import MyOrders from "./pages/Myorders/MyOrders";
 import MyProfile from "./pages/MyProfile/MyProfile";
 import MockCheckout from "./pages/MockCheckout/MockCheckout";
+import RestaurantList from "./pages/RestaurantList/RestaurantList";
+import RestaurantMenu from "./pages/RestaurantMenu/RestaurantMenu";
 function App() {
   const [showLogin, setShowLogin] = useState(false);
 
@@ -45,6 +47,8 @@ function App() {
         <Navbar setShowLogin={setShowLogin} />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/restaurants" element={<RestaurantList />} />
+          <Route path="/restaurant/:id" element={<RestaurantMenu />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<PlaceOrder />} />
           <Route path="/checkout" element={<MockCheckout />} />

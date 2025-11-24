@@ -11,6 +11,7 @@ function FoodItem({
   image,
   category,
   available,
+  restaurantId,
 }) {
   const { cartItems, addToCart, removeFromCart } = useContext(StoreContext);
   return (
@@ -55,6 +56,9 @@ function FoodItem({
           <div className="food-item-name-rating">
             <p>{name}</p>
           </div>
+          {restaurantId && restaurantId.name && (
+            <p className="food-item-restaurant">🏪 {restaurantId.name}</p>
+          )}
           <p className="food-item-desc">{description}</p>
 
           {/* <div className="food-item-rating">

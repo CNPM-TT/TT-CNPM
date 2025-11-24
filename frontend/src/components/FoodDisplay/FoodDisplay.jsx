@@ -147,6 +147,7 @@ function FoodDisplay({ category }) {
                     category={item.category}
                     available={item.available}
                     veg={item.veg}
+                    restaurantId={item.restaurantId}
                   />
                 );
               } else {

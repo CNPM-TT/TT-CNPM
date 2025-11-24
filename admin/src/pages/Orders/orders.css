@@ -1,6 +1,35 @@
 .order-list{
     width: 75vw;
 }
+
+.order-filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background-color: #ffe8e4;
+    border-color: tomato;
+}
+
+.filter-btn.active {
+    background-color: tomato;
+    color: white;
+    border-color: tomato;
+}
+
 .order-item{
     display: grid;
     grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr;
