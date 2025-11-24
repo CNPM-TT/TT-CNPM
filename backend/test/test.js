@@ -4,8 +4,7 @@ import { runTests as runRegisterTests } from './integration/register.test.js';
 import { runTests as runOrderTests } from './integration/order.test.js';
 import { runTests as runFoodTests } from './integration/food.test.js';
 import { runTests as runCartTests } from './integration/cart.test.js';
-import { runTests as runRestaurantOrderTests } from './integration/restaurant-order.test.js';
-// import { runTests as runRestaurantTests } from './integration/restaurant.test.js';
+import { runTests as runRestaurantTests } from './integration/restaurant.test.js';
 
 async function runTest(name, fn) {
   console.log(`\n🔹 Running: ${name}`);
@@ -89,14 +88,16 @@ async function main() {
     suiteResults.push(err.testResults || { suiteName: 'Cart', passed: 0, failed: 0, total: 0, failedTests: [] });
   }
 
-  // Run all restaurant order filtering tests
-  // console.log('\n📝 Running Restaurant Order Filtering Tests Suite...');
-  // try {
-  //   await runRestaurantOrderTests();
-  // } catch (err) {
-  //   console.error('❌ Restaurant order filtering tests suite failed:', err.message);
-  //   failedTests++;
-  // }
+  // Run all restaurant tests
+  console.log('\n📝 Running Restaurant Tests Suite...');
+  try {
+    const result = await runRestaurantTests();
+    suiteResults.push(result);
+  } catch (err) {
+    console.error('❌ Restaurant tests suite failed:', err.message);
+    failedSuites++;
+    suiteResults.push(err.testResults || { suiteName: 'Restaurant', passed: 0, failed: 0, total: 0, failedTests: [] });
+  }
 
 
   console.log('\n' + '='.repeat(70));
