@@ -65,17 +65,73 @@ jobs:
           done
 
       - name: Run tests
-        run: npm test 2>&1 | tee test-output.log
+        run: npm test > test-output.log 2>&1
         continue-on-error: true
         id: test-step
 
+      - name: Check test result
+        run: |
+          echo "Test step outcome: ${{ steps.test-step.outcome }}"
+          if [ -f test-output.log ]; then
+            echo "Test log file exists"
+            ls -lh test-output.log
+          else
+            echo "Test log file NOT found"
+          fi
+
       - name: Upload test logs on failure
-        if: failure()
+        if: steps.test-step.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: test-logs
           path: test-output.log
           retention-days: 7
+
+      - name: Send logs to Grafana Loki
+        if: always()
+        env:
+          LOKI_URL: ${{ secrets.LOKI_URL }}
+          LOKI_USER: ${{ secrets.LOKI_USER }}
+          LOKI_API_KEY: ${{ secrets.LOKI_API_KEY }}
+        run: |
+          if [ -z "$LOKI_URL" ] || [ -z "$LOKI_USER" ] || [ -z "$LOKI_API_KEY" ]; then
+            echo "Loki credentials not configured, skipping log upload"
+            exit 0
+          fi
+          
+          # Determine test status
+          if [ "${{ steps.test-step.outcome }}" == "failure" ]; then
+            TEST_STATUS="failure"
+          else
+            TEST_STATUS="success"
+          fi
+          
+          # Read test log and send each line as separate entry
+          echo "{\"streams\":[{\"stream\":{\"job\":\"github-actions\",\"app\":\"backend-tests\",\"workflow\":\"${{ github.workflow }}\",\"repository\":\"${{ github.repository }}\",\"branch\":\"${{ github.ref_name }}\",\"commit\":\"${{ github.sha }}\",\"run_id\":\"${{ github.run_id }}\",\"status\":\"${TEST_STATUS}\"},\"values\":[" > loki-payload.json
+          
+          # Process log file line by line
+          first=true
+          while IFS= read -r line || [ -n "$line" ]; do
+            # Escape the line for JSON
+            escaped_line=$(echo "$line" | jq -Rs .)
+            timestamp=$(date +%s%N)
+            
+            if [ "$first" = true ]; then
+              echo "[\"$timestamp\",$escaped_line]" >> loki-payload.json
+              first=false
+            else
+              echo ",[\"$timestamp\",$escaped_line]" >> loki-payload.json
+            fi
+          done < test-output.log
+          
+          echo ']}]}' >> loki-payload.json
+          
+          # Send to Loki
+          curl -X POST "$LOKI_URL" \
+            -H "Content-Type: application/json" \
+            -u "${LOKI_USER}:${LOKI_API_KEY}" \
+            -d @loki-payload.json \
+            --fail-with-body || echo "Failed to send logs to Loki"
 
       - name: Fail if tests failed
         if: steps.test-step.outcome == 'failure'

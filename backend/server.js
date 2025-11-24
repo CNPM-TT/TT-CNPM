@@ -52,5 +52,6 @@ app.get("/", (req,res)=>{
 
 app.listen(process.env.PORT, () => {
   console.log("Server is running in: " + process.env.DOMAIN);
+  console.log("📊 Metrics available at: " + process.env.DOMAIN + "/metrics");
 });
 
