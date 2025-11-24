@@ -1,316 +1,214 @@
-// /**
-//  * INTEGRATION TESTS: Restaurant API
-//  * Tests full restaurant authentication flow with real API calls
-//  */
+import axios from "axios";
+import dotenv from "dotenv";
+import restaurantModel from "../../../database/models/restaurant.model.js";
+import { connectDb } from "../../../database/db.js";
 
-// import axios from 'axios';
+dotenv.config();
+const API_URL = process.env.DOMAIN;
 
-// const API_URL = process.env.DOMAIN || 'http://localhost:5000';
-// let authToken = '';
-// let restaurantId = '';
+// Test data
+const generateTestEmail = () => `test_restaurant_${Date.now()}_${Math.random().toString(36).substring(7)}@restaurant.com`;
 
-// function logTest(testName, passed, details = '') {
-//   if (passed) {
-//     console.log(`  ✅ ${testName}`);
-//   } else {
-//     console.log(`  ❌ ${testName}`);
-//     if (details) console.log(`     ${details}`);
-//     throw new Error(`Test failed: ${testName}`);
-//   }
-// }
+let testRestaurantEmail = null;
+let testRestaurantPassword = null;
+let testToken = null;
 
-// // Test 1: Register new restaurant
-// async function testRegisterRestaurant() {
-//   try {
-//     const restaurantData = {
-//       name: `Test Restaurant ${Date.now()}`,
-//       email: `test${Date.now()}@restaurant.com`,
-//       password: 'TestPass123!',
-//       phone: '1234567890',
-//       address: '123 Test Street, Test City',
-//       cuisineType: 'Italian',
-//       description: 'A test restaurant',
-//     };
+// Setup: Connect to database before tests
+export async function setup() {
+  await connectDb();
+}
 
-//     const response = await axios.post(`${API_URL}/api/restaurant/register`, restaurantData);
+// Cleanup: Delete test restaurant after tests
+export async function cleanup() {
+  if (testRestaurantEmail) {
+    console.log(`\n🧹 Cleaning up test restaurant: ${testRestaurantEmail}`);
+    try {
+      await restaurantModel.deleteOne({ email: testRestaurantEmail });
+      console.log("✅ Test restaurant deleted successfully");
+    } catch (error) {
+      console.error("❌ Error deleting test restaurant:", error.message);
+    }
+  }
+}
+
+export async function testRegisterRestaurant() {
+  console.log("\n🧪 Testing restaurant registration...");
+  testRestaurantEmail = generateTestEmail();
+  testRestaurantPassword = "TestPass123!";
+  
+  try {
+    const res = await axios.post(`${API_URL}/api/restaurant/register`, {
+      name: "Test Restaurant",
+      email: testRestaurantEmail,
+      password: testRestaurantPassword,
+      phoneNumber: "1234567890",
+      address: "123 Test Street",
+      city: "Test City",
+      restaurantCode: `TEST${Date.now()}`,
+    });
+
+    console.log("📩 Response data:", res.data);
+
+    if (!res.data.success) throw new Error("Expected success but got failure");
+    if (!res.data.token) throw new Error("No token returned");
     
-//     logTest(
-//       'Restaurant Register - New Restaurant',
-//       response.data.success === true && 
-//       response.data.token !== undefined
-//     );
-
-//     // Save token and ID for subsequent tests
-//     authToken = response.data.token;
-//     restaurantId = response.data.restaurantId || response.data.restaurant?._id;
+    testToken = res.data.token;
+    console.log("✅ Restaurant registration verified");
     
-//     return restaurantData;
-//   } catch (error) {
-//     logTest('Restaurant Register - New Restaurant', false, error.response?.data?.message || error.message);
-//   }
-// }
+    return res.data;
+  } catch (err) {
+    console.error("❌ Test failed with error:", err.response?.data || err.message);
+    throw err;
+  }
+}
 
-// // Test 2: Register with duplicate email
-// async function testRegisterDuplicateEmail(existingEmail) {
-//   try {
-//     const restaurantData = {
-//       name: 'Duplicate Restaurant',
-//       email: existingEmail,
-//       password: 'TestPass123!',
-//       phone: '0987654321',
-//     };
+export async function testRegisterDuplicateEmail() {
+  console.log("\n🧪 Testing restaurant registration with duplicate email...");
+  
+  try {
+    const res = await axios.post(`${API_URL}/api/restaurant/register`, {
+      name: "Duplicate Restaurant",
+      email: testRestaurantEmail,
+      password: "AnotherPassword123!",
+      phoneNumber: "0987654321",
+      address: "456 Another Street",
+      city: "Another City",
+      restaurantCode: `DUP${Date.now()}`,
+    });
 
-//     await axios.post(`${API_URL}/api/restaurant/register`, restaurantData);
-//     logTest('Restaurant Register - Duplicate Email', false, 'Should have failed');
-//   } catch (error) {
-//     logTest(
-//       'Restaurant Register - Duplicate Email',
-//       error.response?.status === 400 || error.response?.status === 409,
-//       `Status: ${error.response?.status}`
-//     );
-//   }
-// }
+    console.log("📩 Response data:", res.data);
 
-// // Test 3: Register with invalid email
-// async function testRegisterInvalidEmail() {
-//   try {
-//     const restaurantData = {
-//       name: 'Invalid Email Restaurant',
-//       email: 'not-an-email',
-//       password: 'TestPass123!',
-//       phone: '1234567890',
-//     };
+    if (res.data.success) throw new Error("Expected failure but got success");
+    if (!res.data.message.includes("already")) {
+      throw new Error("Expected 'already' message");
+    }
+    console.log("✅ Duplicate email handled correctly");
+  } catch (err) {
+    console.error("❌ Test failed with error:", err.response?.data || err.message);
+    throw err;
+  }
+}
 
-//     await axios.post(`${API_URL}/api/restaurant/register`, restaurantData);
-//     logTest('Restaurant Register - Invalid Email', false, 'Should have failed');
-//   } catch (error) {
-//     logTest(
-//       'Restaurant Register - Invalid Email',
-//       error.response?.status === 400,
-//       `Status: ${error.response?.status}`
-//     );
-//   }
-// }
+export async function testLoginRestaurantSuccess() {
+  console.log("\n🧪 Testing restaurant login success...");
+  
+  try {
+    const res = await axios.post(`${API_URL}/api/restaurant/login`, {
+      email: testRestaurantEmail,
+      password: testRestaurantPassword,
+    });
 
-// // Test 4: Register with missing fields
-// async function testRegisterMissingFields() {
-//   try {
-//     const restaurantData = {
-//       name: 'Incomplete Restaurant',
-//       // Missing email, password, phone
-//     };
+    console.log("📩 Response data:", res.data);
 
-//     await axios.post(`${API_URL}/api/restaurant/register`, restaurantData);
-//     logTest('Restaurant Register - Missing Fields', false, 'Should have failed');
-//   } catch (error) {
-//     logTest(
-//       'Restaurant Register - Missing Fields',
-//       error.response?.status === 400,
-//       `Status: ${error.response?.status}`
-//     );
-//   }
-// }
-
-// // Test 5: Login with correct credentials
-// async function testLoginSuccess(email, password) {
-//   try {
-//     const loginData = {
-//       email,
-//       password,
-//     };
-
-//     const response = await axios.post(`${API_URL}/api/restaurant/login`, loginData);
+    if (!res.data.success) throw new Error("Expected success but got failure");
+    if (!res.data.token) throw new Error("No token returned");
     
-//     logTest(
-//       'Restaurant Login - Correct Credentials',
-//       response.data.success === true && 
-//       response.data.token !== undefined
-//     );
-
-//     // Update token
-//     authToken = response.data.token;
-//   } catch (error) {
-//     logTest('Restaurant Login - Correct Credentials', false, error.response?.data?.message || error.message);
-//   }
-// }
-
-// // Test 6: Login with wrong password
-// async function testLoginWrongPassword(email) {
-//   try {
-//     const loginData = {
-//       email,
-//       password: 'WrongPassword123!',
-//     };
-
-//     await axios.post(`${API_URL}/api/restaurant/login`, loginData);
-//     logTest('Restaurant Login - Wrong Password', false, 'Should have failed');
-//   } catch (error) {
-//     logTest(
-//       'Restaurant Login - Wrong Password',
-//       error.response?.status === 401 || error.response?.status === 400,
-//       `Status: ${error.response?.status}`
-//     );
-//   }
-// }
-
-// // Test 7: Login with non-existent email
-// async function testLoginNonExistent() {
-//   try {
-//     const loginData = {
-//       email: 'nonexistent@restaurant.com',
-//       password: 'Password123!',
-//     };
-
-//     await axios.post(`${API_URL}/api/restaurant/login`, loginData);
-//     logTest('Restaurant Login - Non-existent Email', false, 'Should have failed');
-//   } catch (error) {
-//     logTest(
-//       'Restaurant Login - Non-existent Email',
-//       error.response?.status === 401 || error.response?.status === 404,
-//       `Status: ${error.response?.status}`
-//     );
-//   }
-// }
-
-// // Test 8: Get profile without token
-// async function testGetProfileNoToken() {
-//   try {
-//     await axios.get(`${API_URL}/api/restaurant/profile`);
-//     logTest('Restaurant Get Profile - No Token', false, 'Should have failed');
-//   } catch (error) {
-//     logTest(
-//       'Restaurant Get Profile - No Token',
-//       error.response?.status === 401,
-//       `Status: ${error.response?.status}`
-//     );
-//   }
-// }
-
-// // Test 9: Get profile with valid token
-// async function testGetProfileWithToken() {
-//   try {
-//     const response = await axios.get(`${API_URL}/api/restaurant/profile`, {
-//       headers: {
-//         'Authorization': `Bearer ${authToken}`,
-//       },
-//     });
+    testToken = res.data.token;
+    console.log("✅ Restaurant login success verified");
     
-//     logTest(
-//       'Restaurant Get Profile - Valid Token',
-//       response.data.success === true && 
-//       response.data.restaurant !== undefined
-//     );
-//   } catch (error) {
-//     logTest('Restaurant Get Profile - Valid Token', false, error.response?.data?.message || error.message);
-//   }
-// }
+    return res.data;
+  } catch (err) {
+    console.error("❌ Test failed with error:", err.response?.data || err.message);
+    throw err;
+  }
+}
 
-// // Test 10: Update profile
-// async function testUpdateProfile() {
-//   try {
-//     const updateData = {
-//       name: 'Updated Restaurant Name',
-//       phone: '9876543210',
-//       description: 'Updated description',
-//     };
+export async function testLoginRestaurantWrongPassword() {
+  console.log("\n🧪 Testing restaurant login with wrong password...");
+  
+  try {
+    const res = await axios.post(`${API_URL}/api/restaurant/login`, {
+      email: testRestaurantEmail,
+      password: "WrongPassword123!",
+    });
 
-//     const response = await axios.put(`${API_URL}/api/restaurant/profile`, updateData, {
-//       headers: {
-//         'Authorization': `Bearer ${authToken}`,
-//       },
-//     });
+    console.log("📩 Response data:", res.data);
+
+    if (res.data.success) throw new Error("Expected failure but got success");
+    if (!res.data.message.includes("Incorrect password")) {
+      throw new Error("Expected 'Incorrect password' message");
+    }
+    console.log("✅ Wrong password handled correctly");
+  } catch (err) {
+    console.error("❌ Test failed with error:", err.response?.data || err.message);
+    throw err;
+  }
+}
+
+export async function testLoginRestaurantNonExistent() {
+  console.log("\n🧪 Testing restaurant login with non-existent email...");
+  
+  try {
+    const res = await axios.post(`${API_URL}/api/restaurant/login`, {
+      email: "nonexistent@restaurant.com",
+      password: "Password123!",
+    });
+
+    console.log("📩 Response data:", res.data);
+
+    if (res.data.success) throw new Error("Expected failure but got success");
+    if (!res.data.message.includes("doesn't exist")) {
+      throw new Error("Expected 'doesn't exist' message");
+    }
+    console.log("✅ Non-existent restaurant handled correctly");
+  } catch (err) {
+    console.error("❌ Test failed with error:", err.response?.data || err.message);
+    throw err;
+  }
+}
+
+// Main test runner
+export async function runTests() {
+  let passed = 0;
+  let failed = 0;
+  const failedTests = [];
+  const tests = [
+    { name: "Register Restaurant", fn: testRegisterRestaurant },
+    { name: "Register Duplicate Email", fn: testRegisterDuplicateEmail },
+    { name: "Login Restaurant Success", fn: testLoginRestaurantSuccess },
+    { name: "Login Wrong Password", fn: testLoginRestaurantWrongPassword },
+    { name: "Login Non-Existent Restaurant", fn: testLoginRestaurantNonExistent },
+  ];
+
+  try {
+    await setup();
     
-//     logTest(
-//       'Restaurant Update Profile',
-//       response.data.success === true &&
-//       response.data.restaurant?.name === updateData.name
-//     );
-//   } catch (error) {
-//     logTest('Restaurant Update Profile', false, error.response?.data?.message || error.message);
-//   }
-// }
+    for (const test of tests) {
+      try {
+        await test.fn();
+        passed++;
+      } catch (error) {
+        failed++;
+        failedTests.push(test.name);
+      }
+    }
 
-// // Test 11: Update profile without token
-// async function testUpdateProfileNoToken() {
-//   try {
-//     const updateData = {
-//       name: 'Should Fail',
-//     };
+    console.log("\n" + "=".repeat(50));
+    console.log("📊 Restaurant Test Suite Summary:");
+    console.log("=".repeat(50));
+    console.log(`✅ Passed: ${passed}/${tests.length}`);
+    console.log(`❌ Failed: ${failed}/${tests.length}`);
+    console.log("=".repeat(50) + "\n");
 
-//     await axios.put(`${API_URL}/api/restaurant/profile`, updateData);
-//     logTest('Restaurant Update Profile - No Token', false, 'Should have failed');
-//   } catch (error) {
-//     logTest(
-//       'Restaurant Update Profile - No Token',
-//       error.response?.status === 401,
-//       `Status: ${error.response?.status}`
-//     );
-//   }
-// }
+    if (failed > 0) {
+      const error = new Error(`${failed} restaurant test(s) failed`);
+      error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Restaurant' };
+      throw error;
+    }
+  } catch (error) {
+    console.error("❌ Test suite failed:", error.message);
+    if (!error.testResults) {
+      error.testResults = { passed, failed, total: tests.length, failedTests, suiteName: 'Restaurant' };
+    }
+    throw error;
+  } finally {
+    await cleanup();
+  }
+  
+  return { passed, failed, total: tests.length, failedTests, suiteName: 'Restaurant' };
+}
 
-// // Test 12: Logout
-// async function testLogout() {
-//   try {
-//     const response = await axios.post(`${API_URL}/api/restaurant/logout`, {}, {
-//       headers: {
-//         'Authorization': `Bearer ${authToken}`,
-//       },
-//     });
-    
-//     logTest(
-//       'Restaurant Logout',
-//       response.data.success === true || response.status === 200
-//     );
-//   } catch (error) {
-//     // Logout might not be implemented, so accept 404
-//     logTest(
-//       'Restaurant Logout',
-//       error.response?.status === 404 || error.response?.status === 501,
-//       'Logout endpoint may not be implemented yet'
-//     );
-//   }
-// }
-
-// // Main test runner
-// export async function runTests() {
-//   console.log('\n🍽️  RESTAURANT INTEGRATION TESTS');
-//   console.log('   Testing restaurant API endpoints with real HTTP calls\n');
-
-//   try {
-//     // Register and login flow
-//     const restaurant = await testRegisterRestaurant();
-//     await testRegisterDuplicateEmail(restaurant.email);
-//     await testRegisterInvalidEmail();
-//     await testRegisterMissingFields();
-    
-//     await testLoginSuccess(restaurant.email, restaurant.password);
-//     await testLoginWrongPassword(restaurant.email);
-//     await testLoginNonExistent();
-    
-//     // Profile management
-//     await testGetProfileNoToken();
-//     await testGetProfileWithToken();
-//     await testUpdateProfile();
-//     await testUpdateProfileNoToken();
-    
-//     await testLogout();
-
-//     console.log('\n   ✅ All restaurant integration tests passed!\n');
-//   } catch (error) {
-//     console.error('\n   ❌ Restaurant integration tests failed\n');
-//     throw error;
-//   }
-// }
-
-// // Run if executed directly
-// if (import.meta.url === `file://${process.argv[1]}`) {
-//   runTests()
-//     .then(() => {
-//       console.log('✅ Restaurant API integration tests completed successfully!');
-//       process.exit(0);
-//     })
-//     .catch((error) => {
-//       console.error('❌ Restaurant API integration tests failed:', error.message);
-//       process.exit(1);
-//     });
-// }
+// Run tests if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  runTests().then(() => process.exit(0)).catch(() => process.exit(1));
+}
