@@ -9,10 +9,22 @@ const Orders = () => {
   const [activeTab, setActiveTab] = useState('new'); // new, preparing, ready, completed
 
   const fetchOrders = async () => {
+    const token = localStorage.getItem("restaurant-token");
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
+
     try {
-      const response = await axios.get(`${url}/api/order/list`);
+      // Use restaurant-specific endpoint
+      const response = await axios.get(`${url}/api/order/restaurant/my-orders`, {
+        headers: { token },
+      });
+      
       if (response.data.success) {
         setOrders(response.data.data);
+      } else {
+        toast.error(response.data.message);
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -28,15 +40,26 @@ const Orders = () => {
   }, []);
 
   const updateOrderStatus = async (orderId, newStatus) => {
+    const token = localStorage.getItem("restaurant-token");
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
+
     try {
-      const response = await axios.post(`${url}/api/order/update`, {
+      // Use restaurant-specific update endpoint
+      const response = await axios.post(`${url}/api/order/restaurant/update`, {
         orderId,
         status: newStatus
+      }, {
+        headers: { token },
       });
 
       if (response.data.success) {
         toast.success(`Order updated to: ${newStatus}`);
         fetchOrders();
+      } else {
+        toast.error(response.data.message);
       }
     } catch (error) {
       console.error('Error updating order:', error);
@@ -77,7 +100,24 @@ const Orders = () => {
   };
 
   const renderOrderActions = (order) => {
-    if (order.status === 'Food Processing') {
+    // Get current restaurant's ID from localStorage
+    const restaurantToken = localStorage.getItem("restaurant-token");
+    let currentRestaurantStatus = order.status; // Fallback to main status
+    
+    // Try to get restaurant-specific status if available
+    if (order.restaurantStatus && restaurantToken) {
+      try {
+        const decoded = JSON.parse(atob(restaurantToken.split('.')[1]));
+        const restaurantId = decoded.id;
+        if (order.restaurantStatus[restaurantId]) {
+          currentRestaurantStatus = order.restaurantStatus[restaurantId];
+        }
+      } catch (e) {
+        console.error("Failed to decode token:", e);
+      }
+    }
+    
+    if (currentRestaurantStatus === 'Food Processing') {
       return (
         <button 
           className="btn-start"
@@ -86,7 +126,7 @@ const Orders = () => {
           👨‍🍳 Start Preparing
         </button>
       );
-    } else if (order.status === 'Preparing') {
+    } else if (currentRestaurantStatus === 'Preparing') {
       return (
         <button 
           className="btn-ready"
@@ -95,7 +135,7 @@ const Orders = () => {
           ✅ Mark Ready
         </button>
       );
-    } else if (order.status === 'Ready for Pickup') {
+    } else if (currentRestaurantStatus === 'Ready for Pickup') {
       return (
         <button 
           className="btn-dispatch"
@@ -110,6 +150,21 @@ const Orders = () => {
           ✓ Completed
         </span>
       );
+    }
+  };
+
+  // Filter items to show only those belonging to current restaurant
+  const getRestaurantItems = (orderItems) => {
+    const restaurantToken = localStorage.getItem("restaurant-token");
+    if (!restaurantToken) return orderItems;
+    
+    try {
+      const decoded = JSON.parse(atob(restaurantToken.split('.')[1]));
+      const restaurantId = decoded.id;
+      return orderItems.filter(item => item.restaurantId === restaurantId);
+    } catch (e) {
+      console.error("Failed to filter items:", e);
+      return orderItems;
     }
   };
 
@@ -179,7 +234,7 @@ const Orders = () => {
 
               <div className="order-items">
                 <h4>Items:</h4>
-                {order.items.map((item, index) => (
+                {getRestaurantItems(order.items).map((item, index) => (
                   <div key={index} className="order-item">
                     <img src={item.image} alt={item.name} />
                     <div className="item-details">

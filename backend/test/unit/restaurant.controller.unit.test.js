@@ -1,9 +1,4 @@
-/**
- * UNIT TESTS: Restaurant Controller
- * Tests isolated functions with mocked dependencies
- */
 
-// Mock restaurant model
 const mockRestaurantModel = {
   findOne: async () => null,
   create: async (data) => ({ _id: 'test-id', ...data, save: async () => {} }),

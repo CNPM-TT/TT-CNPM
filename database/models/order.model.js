@@ -31,7 +31,18 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    
+    // Track which restaurants are involved in this order
+    restaurantIds: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'restaurant',
+      default: [],
+    },
+    // Track status per restaurant (for multi-restaurant orders)
+    restaurantStatus: {
+      type: Map,
+      of: String,
+      default: new Map(),
+    },
   },
   { timestamps: true }
 );
