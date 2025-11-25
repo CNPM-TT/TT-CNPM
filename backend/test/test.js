@@ -6,6 +6,7 @@ import { runTests as runFoodTests } from './integration/food.test.js';
 import { runTests as runCartTests } from './integration/cart.test.js';
 import { runTests as runRestaurantTests } from './integration/restaurant.test.js';
 
+
 async function runTest(name, fn) {
   console.log(`\n🔹 Running: ${name}`);
   try {
@@ -98,7 +99,6 @@ async function main() {
     failedSuites++;
     suiteResults.push(err.testResults || { suiteName: 'Restaurant', passed: 0, failed: 0, total: 0, failedTests: [] });
   }
-
 
   console.log('\n' + '='.repeat(70));
   console.log('🎯 OVERALL TEST SUMMARY');
