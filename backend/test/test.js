@@ -6,6 +6,7 @@ import { runTests as runFoodTests } from './integration/food.test.js';
 import { runTests as runCartTests } from './integration/cart.test.js';
 import { runTests as runRestaurantTests } from './integration/restaurant.test.js';
 
+
 async function runTest(name, fn) {
   console.log(`\n🔹 Running: ${name}`);
   try {

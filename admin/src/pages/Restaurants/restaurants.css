@@ -1,0 +1,252 @@
+.restaurants {
+  width: 100%;
+}
+
+.restaurants-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.restaurants-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.restaurants-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  min-width: 120px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.stat-value.active {
+  color: #10b981;
+}
+
+.stat-value.inactive {
+  color: #ef4444;
+}
+
+.loading-text {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+}
+
+.no-restaurants {
+  text-align: center;
+  padding: 60px 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.no-restaurants p {
+  color: #666;
+  font-size: 16px;
+  margin: 0;
+}
+
+.restaurants-table-container {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.restaurants-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1200px;
+}
+
+.restaurants-table thead {
+  background: #f8f9fa;
+}
+
+.restaurants-table th {
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  border-bottom: 2px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.restaurants-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.restaurants-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.restaurants-table tbody tr.inactive-row {
+  opacity: 0.6;
+}
+
+.restaurants-table td {
+  padding: 15px 12px;
+  font-size: 14px;
+  color: #555;
+}
+
+.restaurant-code {
+  font-weight: 600;
+  color: #333;
+  font-family: monospace;
+}
+
+.restaurant-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.restaurant-email {
+  color: #3b82f6;
+}
+
+.restaurant-address {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.restaurant-rating {
+  text-align: center;
+}
+
+.rating-badge {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.no-rating {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Status Toggle Button */
+.status-toggle-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-toggle-btn.btn-active {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #10b981;
+}
+
+.status-toggle-btn.btn-active:hover {
+  background: #10b981;
+  color: white;
+  transform: scale(1.05);
+}
+
+.status-toggle-btn.btn-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #ef4444;
+}
+
+.status-toggle-btn.btn-inactive:hover {
+  background: #ef4444;
+  color: white;
+  transform: scale(1.05);
+}
+
+.restaurant-date {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .restaurants-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .restaurants-stats {
+    width: 100%;
+  }
+
+  .stat-item {
+    flex: 1;
+    min-width: auto;
+  }
+
+  .restaurants-table-container {
+    border-radius: 4px;
+  }
+
+  .restaurants-table th,
+  .restaurants-table td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}

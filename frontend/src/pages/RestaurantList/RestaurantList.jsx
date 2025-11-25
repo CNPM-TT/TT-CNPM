@@ -15,7 +15,9 @@ function RestaurantList() {
       const response = await axios.get(`${DOMAIN}/api/restaurant/list`);
       
       if (response.data.success) {
-        setRestaurants(response.data.data);
+        // Filter only active restaurants for customers
+        const activeRestaurants = response.data.data.filter(r => r.isActive);
+        setRestaurants(activeRestaurants);
       }
     } catch (error) {
       console.error("Error fetching restaurants:", error);

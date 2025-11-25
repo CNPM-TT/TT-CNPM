@@ -97,6 +97,18 @@ const verifyOrder = async (req, res) => {
       await orderModel.findByIdAndUpdate(orderId, { payment: true });
       const orderDetails = await orderModel.findById(orderId);
       
+      // Update totalOrders count for each restaurant in the order
+      if (orderDetails.restaurantIds && orderDetails.restaurantIds.length > 0) {
+        const restaurantModel = (await import("../../database/models/restaurant.model.js")).default;
+        
+        for (const restaurantId of orderDetails.restaurantIds) {
+          await restaurantModel.findByIdAndUpdate(
+            restaurantId,
+            { $inc: { totalOrders: 1 } }
+          );
+        }
+      }
+      
       // Send email (non-blocking)
       sendOrderConfirmNotif(
         orderDetails.address.email,
