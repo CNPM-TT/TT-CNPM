@@ -16,7 +16,8 @@ const restaurantRouter = express.Router();
 // Public routes
 restaurantRouter.post("/register", registerRestaurant);
 restaurantRouter.post("/login", loginRestaurant);
-restaurantRouter.get("/list", getRestaurantsList); // For customer frontend
+restaurantRouter.get("/list", getRestaurantsList); // For customer frontend - only active restaurants
+restaurantRouter.get("/admin/list", getAllRestaurants); // Admin dashboard - ALL restaurants (active + inactive)
 restaurantRouter.get("/:id", getRestaurantById); // For restaurant details
 
 // Protected routes (admin only)

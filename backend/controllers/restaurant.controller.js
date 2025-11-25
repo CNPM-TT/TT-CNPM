@@ -7,6 +7,25 @@ const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
 };
 
+// Helpers
+const calculateStatsFromList = (restaurants) => {
+  const total = restaurants.length;
+  const active = restaurants.reduce((count, restaurant) => {
+    return restaurant.isActive ? count + 1 : count;
+  }, 0);
+
+  return { total, active, inactive: total - active };
+};
+
+const fetchRestaurantStats = async () => {
+  const [total, active] = await Promise.all([
+    restaurantModel.countDocuments({}),
+    restaurantModel.countDocuments({ isActive: true }),
+  ]);
+
+  return { total, active, inactive: total - active };
+};
+
 // Login Restaurant
 const loginRestaurant = async (req, res) => {
   const { email, password } = req.body;
@@ -119,11 +138,17 @@ const registerRestaurant = async (req, res) => {
 // Get all restaurants
 const getAllRestaurants = async (req, res) => {
   try {
-    const restaurants = await restaurantModel.find({}).select('-password');
+    const restaurants = await restaurantModel
+      .find({})
+      .select('-password')
+      .sort({ createdAt: -1 });
+    const stats = calculateStatsFromList(restaurants);
+
     if (restaurants) {
       return res.json({ 
         success: true, 
         data: restaurants, 
+        stats,
         message: "Restaurants fetched successfully." 
       });
     }
@@ -197,9 +222,11 @@ const updateRestaurantStatus = async (req, res) => {
     ).select('-password');
     
     if (restaurant) {
+      const stats = await fetchRestaurantStats();
       return res.json({ 
         success: true, 
         data: restaurant, 
+        stats,
         message: `Restaurant ${isActive ? 'activated' : 'deactivated'} successfully.` 
       });
     } else {
@@ -241,14 +268,20 @@ const getRestaurantById = async (req, res) => {
 // Get active restaurants list (for customer frontend)
 const getRestaurantsList = async (req, res) => {
   try {
+    // Allow admin to fetch full list (active + inactive) via query param
+    const { scope, includeInactive } = req.query;
+    const includeAll = scope === 'admin' || includeInactive === 'true';
+
     const restaurants = await restaurantModel
-      .find({ isActive: true })
+      .find(includeAll ? {} : { isActive: true })
       .select('-password')
       .sort({ rating: -1, createdAt: -1 });
+    const stats = calculateStatsFromList(restaurants);
     
     return res.json({ 
       success: true, 
       data: restaurants, 
+      stats,
       message: "Restaurants list fetched successfully." 
     });
   } catch (error) {

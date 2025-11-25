@@ -7,20 +7,43 @@ import { toast } from "react-toastify";
 function Restaurants() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0 });
+
+  const buildStats = (list, serverStats) => {
+    if (serverStats && Number.isFinite(serverStats.total) && Number.isFinite(serverStats.active)) {
+      const inactive = Number.isFinite(serverStats.inactive)
+        ? serverStats.inactive
+        : Math.max(serverStats.total - serverStats.active, 0);
+
+      return { total: serverStats.total, active: serverStats.active, inactive };
+    }
+
+    const active = list.filter((restaurant) => restaurant.isActive).length;
+    return {
+      total: list.length,
+      active,
+      inactive: list.length - active
+    };
+  };
 
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${DOMAIN}/api/restaurant/list`);
+      // Always use the dedicated admin endpoint to get ALL restaurants
+      const response = await axios.get(`${DOMAIN}/api/restaurant/admin/list`);
       
-      if (response.data.success) {
+      console.log('Admin fetched restaurants:', response.data);
+
+      if (response.data.success && Array.isArray(response.data.data)) {
+        console.log(`Total restaurants fetched: ${response.data.data.length}`);
         setRestaurants(response.data.data);
+        setStats(buildStats(response.data.data, response.data.stats));
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message || "Failed to fetch restaurants");
       }
     } catch (error) {
       console.error("Error fetching restaurants:", error);
-      toast.error("Failed to fetch restaurants");
+      toast.error("Failed to fetch restaurants. Please check if the server is running.");
     } finally {
       setLoading(false);
     }
@@ -35,7 +58,20 @@ function Restaurants() {
       
       if (response.data.success) {
         toast.success(response.data.message);
-        fetchRestaurants();
+
+        // Update the restaurant in the list without removing it
+        setRestaurants((prev) => {
+          const updatedList = prev.map((restaurant) => {
+            if (restaurant._id === restaurantId) {
+              return { ...restaurant, isActive: !currentStatus };
+            }
+            return restaurant;
+          });
+          
+          // Update stats from server response or recalculate
+          setStats(buildStats(updatedList, response.data.stats));
+          return updatedList;
+        });
       } else {
         toast.error(response.data.message);
       }
@@ -66,6 +102,10 @@ function Restaurants() {
     );
   }
 
+  const totalCount = stats.total ?? restaurants.length;
+  const activeCount = stats.active ?? restaurants.filter((r) => r.isActive).length;
+  const inactiveCount = stats.inactive ?? restaurants.filter((r) => !r.isActive).length;
+
   return (
     <div className="restaurants add">
       <div className="restaurants-header">
@@ -73,15 +113,15 @@ function Restaurants() {
         <div className="restaurants-stats">
           <div className="stat-item">
             <span className="stat-label">Total Restaurants:</span>
-            <span className="stat-value">{restaurants.length}</span>
+            <span className="stat-value">{totalCount}</span>
           </div>
           <div className="stat-item">
             <span className="stat-label">Active:</span>
-            <span className="stat-value active">{restaurants.filter(r => r.isActive).length}</span>
+            <span className="stat-value active">{activeCount}</span>
           </div>
           <div className="stat-item">
             <span className="stat-label">Inactive:</span>
-            <span className="stat-value inactive">{restaurants.filter(r => !r.isActive).length}</span>
+            <span className="stat-value inactive">{inactiveCount}</span>
           </div>
         </div>
       </div>
