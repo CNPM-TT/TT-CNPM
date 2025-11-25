@@ -11,32 +11,33 @@ import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login/Login";
 import User from "./pages/User/User";
+import Restaurants from "./pages/Restaurants/Restaurants";
 
 function App() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const passcode = localStorage.getItem("passcode");
-  //   if (passcode === "TAYLORSWIFT13") {
-  //     setIsAuthorized(true);
-  //   } else {
-  //     setIsAuthorized(false);
-  //     alert("Unauthorized access. Please enter the correct passcode.");
-  //     navigate("/");
-  //   }
-  // }, [navigate]);
-
   useEffect(() => {
     const passcode = localStorage.getItem("passcode");
     if (passcode === "TAYLORSWIFT13") {
+      setIsAuthorized(true);
+    } else {
       setIsAuthorized(false);
       alert("Unauthorized access. Please enter the correct passcode.");
       navigate("/");
-    } else {
-      setIsAuthorized(true);
     }
   }, [navigate]);
+
+  // useEffect(() => {
+  //   const passcode = localStorage.getItem("passcode");
+  //   if (passcode === "TAYLORSWIFT13") {
+  //     setIsAuthorized(false);
+  //     alert("Unauthorized access. Please enter the correct passcode.");
+  //     navigate("/");
+  //   } else {
+  //     setIsAuthorized(true);
+  //   }
+  // }, [navigate]);
 
   return (
     <>
@@ -65,6 +66,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/users" element={<User />} />
+                <Route path="/restaurants" element={<Restaurants />} />
                 <Route path="/add" element={<Add />} />
                 <Route path="/list" element={<List />} />
                 <Route path="/orders" element={<Orders />} />
