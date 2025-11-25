@@ -24,5 +24,6 @@ restaurantRouter.get("/", authMiddleware, getAllRestaurants);
 restaurantRouter.post("/getByEmail", authMiddleware, getRestaurantByEmail);
 restaurantRouter.post("/updateByEmail", authMiddleware, updateRestaurantByEmail);
 restaurantRouter.post("/updateStatus", authMiddleware, updateRestaurantStatus);
+restaurantRouter.post("/toggleStatus", updateRestaurantStatus); // For admin toggle
 
 export default restaurantRouter;

@@ -26,6 +26,25 @@ function Restaurants() {
     }
   };
 
+  const toggleRestaurantStatus = async (restaurantId, currentStatus) => {
+    try {
+      const response = await axios.post(`${DOMAIN}/api/restaurant/toggleStatus`, {
+        restaurantId,
+        isActive: !currentStatus
+      });
+      
+      if (response.data.success) {
+        toast.success(response.data.message);
+        fetchRestaurants();
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error toggling restaurant status:", error);
+      toast.error("Failed to update restaurant status");
+    }
+  };
+
   useEffect(() => {
     fetchRestaurants();
   }, []);
@@ -106,9 +125,13 @@ function Restaurants() {
                   </td>
                   <td className="text-center">{restaurant.totalOrders || 0}</td>
                   <td>
-                    <span className={`status-badge ${restaurant.isActive ? 'status-active' : 'status-inactive'}`}>
+                    <button 
+                      className={`status-toggle-btn ${restaurant.isActive ? 'btn-active' : 'btn-inactive'}`}
+                      onClick={() => toggleRestaurantStatus(restaurant._id, restaurant.isActive)}
+                      title={restaurant.isActive ? 'Click to deactivate' : 'Click to activate'}
+                    >
                       {restaurant.isActive ? '✓ Active' : '✗ Inactive'}
-                    </span>
+                    </button>
                   </td>
                   <td className="restaurant-date">{formatDate(restaurant.createdAt)}</td>
                 </tr>
