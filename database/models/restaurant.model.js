@@ -17,8 +17,12 @@ const restaurantSchema = new mongoose.Schema(
     address: {
       type: String,
     },
+    district: {
+      type: String,
+    },
     city: {
       type: String,
+      default: 'Ho Chi Minh City',
     },
     password: {
       type: String,

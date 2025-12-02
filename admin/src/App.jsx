@@ -12,6 +12,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login/Login";
 import User from "./pages/User/User";
 import Restaurants from "./pages/Restaurants/Restaurants";
+import Drones from "./pages/Drones/Drones";
+import Hubs from "./pages/Hubs/Hubs";
 
 function App() {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -67,6 +69,8 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/users" element={<User />} />
                 <Route path="/restaurants" element={<Restaurants />} />
+                <Route path="/drones" element={<Drones />} />
+                <Route path="/hubs" element={<Hubs />} />
                 <Route path="/add" element={<Add />} />
                 <Route path="/list" element={<List />} />
                 <Route path="/orders" element={<Orders />} />

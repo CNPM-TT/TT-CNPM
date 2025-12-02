@@ -1,5 +1,8 @@
 import orderModel from "../../database/models/order.model.js";
 import userModel from "../../database/models/user.model.js";
+import restaurantModel from "../../database/models/restaurant.model.js";
+import hubModel from "../../database/models/hub.model.js";
+import droneModel from "../../database/models/drone.model.js";
 import Stripe from "stripe";
 import { CLIENT_DOMAIN } from "../config/client.js";
 import {
@@ -7,6 +10,79 @@ import {
   sendOrderStatusNotif,
 } from "../middleware/nodemailer.js";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Helper function to split orders by district
+const splitOrderByDistrict = async (restaurantIds, itemsByRestaurant, amountByRestaurant) => {
+  try {
+    // Fetch restaurant details with districts
+    const restaurants = await restaurantModel.find({
+      _id: { $in: restaurantIds }
+    }).select('_id district');
+
+    // Group restaurants by district
+    const districtGroups = {};
+    restaurants.forEach(restaurant => {
+      const district = restaurant.district || 'Unknown';
+      if (!districtGroups[district]) {
+        districtGroups[district] = [];
+      }
+      districtGroups[district].push(restaurant._id.toString());
+    });
+
+    // Create delivery zones
+    const deliveryZones = [];
+    for (const [district, restIds] of Object.entries(districtGroups)) {
+      // Find nearest hub for this district
+      const hub = await hubModel.findOne({
+        'location.district': district,
+        status: 'active'
+      }).sort({ 'assignedDrones.length': 1 }); // Prefer hubs with fewer drones
+
+      // Collect items and calculate amount for this zone
+      const zoneItems = [];
+      let zoneAmount = 0;
+      
+      restIds.forEach(restId => {
+        if (itemsByRestaurant[restId]) {
+          zoneItems.push(...itemsByRestaurant[restId]);
+          zoneAmount += (amountByRestaurant.get(restId) || 0);
+        }
+      });
+
+      deliveryZones.push({
+        district,
+        restaurantIds: restIds,
+        items: zoneItems,
+        amount: zoneAmount,
+        hubId: hub ? hub._id : null
+      });
+    }
+
+    return deliveryZones;
+  } catch (error) {
+    console.error('Error splitting order by district:', error);
+    return [];
+  }
+};
+
+// Helper function to calculate optimal drone count
+const calculateOptimalDrones = (deliveryZones) => {
+  return deliveryZones.map(zone => {
+    const totalItems = zone.items.length;
+    const totalWeight = zone.items.reduce((sum, item) => sum + (item.quantity * 0.5), 0); // Assume 0.5kg per item
+    
+    // Calculate drones needed based on capacity (max 5kg or 10 items per drone)
+    const dronesForWeight = Math.ceil(totalWeight / 5);
+    const dronesForItems = Math.ceil(totalItems / 10);
+    const dronesNeeded = Math.max(dronesForWeight, dronesForItems, 1);
+    
+    return {
+      ...zone,
+      recommendedDrones: dronesNeeded,
+      estimatedWeight: totalWeight
+    };
+  });
+};
 
 //placing user order from frontend
 const placeOrder = async (req, res) => {
@@ -20,9 +96,33 @@ const placeOrder = async (req, res) => {
 
     // Initialize restaurantStatus for each restaurant
     const restaurantStatus = new Map();
+    const amountByRestaurant = new Map();
+    const itemsByRestaurant = {};
+    
     restaurantIds.forEach(id => {
       restaurantStatus.set(id.toString(), "Food Processing");
+      amountByRestaurant.set(id.toString(), 0);
+      itemsByRestaurant[id.toString()] = [];
     });
+
+    // Calculate amount per restaurant and group items
+    req.body.items.forEach(item => {
+      if (item.restaurantId) {
+        const restId = item.restaurantId.toString();
+        const itemTotal = item.price * item.quantity;
+        
+        // Add to restaurant's total
+        const currentAmount = amountByRestaurant.get(restId) || 0;
+        amountByRestaurant.set(restId, currentAmount + itemTotal);
+        
+        // Group items by restaurant
+        itemsByRestaurant[restId].push(item);
+      }
+    });
+
+    // Split order by district and assign hubs
+    const deliveryZones = await splitOrderByDistrict(restaurantIds, itemsByRestaurant, amountByRestaurant);
+    const optimizedZones = calculateOptimalDrones(deliveryZones);
 
     const newOrder = new orderModel({
       userId: req.body.userId,
@@ -32,6 +132,9 @@ const placeOrder = async (req, res) => {
       cod: false,
       restaurantIds: restaurantIds,
       restaurantStatus: restaurantStatus,
+      amountByRestaurant: amountByRestaurant,
+      itemsByRestaurant: itemsByRestaurant,
+      deliveryZones: optimizedZones,
     });
 
     await newOrder.save();
@@ -58,11 +161,33 @@ const cod = async (req, res) => {
         .filter(id => id) // Remove undefined/null
     )];
 
-    // Initialize restaurantStatus for each restaurant
+    // Initialize restaurantStatus and calculate amounts per restaurant
     const restaurantStatus = new Map();
+    const amountByRestaurant = new Map();
+    const itemsByRestaurant = {};
+    
     restaurantIds.forEach(id => {
       restaurantStatus.set(id.toString(), "Food Processing");
+      amountByRestaurant.set(id.toString(), 0);
+      itemsByRestaurant[id.toString()] = [];
     });
+
+    // Calculate amount per restaurant
+    req.body.items.forEach(item => {
+      if (item.restaurantId) {
+        const restId = item.restaurantId.toString();
+        const itemTotal = item.price * item.quantity;
+        
+        const currentAmount = amountByRestaurant.get(restId) || 0;
+        amountByRestaurant.set(restId, currentAmount + itemTotal);
+        
+        itemsByRestaurant[restId].push(item);
+      }
+    });
+
+    // Split order by district and assign hubs
+    const deliveryZones = await splitOrderByDistrict(restaurantIds, itemsByRestaurant, amountByRestaurant);
+    const optimizedZones = calculateOptimalDrones(deliveryZones);
 
     const newOrder = new orderModel({
       userId: req.body.userId,
@@ -72,6 +197,9 @@ const cod = async (req, res) => {
       cod: true,
       restaurantIds: restaurantIds,
       restaurantStatus: restaurantStatus,
+      amountByRestaurant: amountByRestaurant,
+      itemsByRestaurant: itemsByRestaurant,
+      deliveryZones: optimizedZones,
     });
 
     await newOrder.save();
@@ -220,18 +348,28 @@ const getRestaurantOrders = async (req, res) => {
     const restaurantId = req.restaurantId; // From authRestaurant middleware
     
     // Find all orders that contain items from this restaurant
+    // Support both new orders (with restaurantIds) and old orders (check items.restaurantId)
     const orders = await orderModel.find({
-      restaurantIds: restaurantId,
-      $or: [{ payment: true }, { cod: true }], // Include both paid and COD orders
+      $and: [
+        {
+          $or: [
+            { restaurantIds: restaurantId }, // New orders with restaurantIds array
+            { 'items.restaurantId': restaurantId } // Old orders - check items
+          ]
+        },
+        {
+          $or: [{ payment: true }, { cod: true }] // Include both paid and COD orders
+        }
+      ]
     }).sort({ date: -1 });
 
-    res.json({ 
+    res.json({
       success: true, 
       data: orders,
       message: "Restaurant orders fetched successfully." 
     });
   } catch (error) {
-    console.log(error);
+    console.log('❌ Error fetching restaurant orders:', error);
     res.json({ success: false, message: "Error fetching restaurant orders." });
   }
 };
@@ -301,4 +439,40 @@ const updateRestaurantOrderStatus = async (req, res) => {
   }
 };
 
-export { placeOrder, cod, verifyOrder, userOrder, listOrders, updateStatus, getRestaurantOrders, updateRestaurantOrderStatus };
+// Get order details with delivery zones (for debugging and order tracking)
+const getOrderDeliveryZones = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    
+    const order = await orderModel.findById(orderId)
+      .populate('restaurantIds', 'name district')
+      .populate('deliveryZones.hubId', 'hubCode name location');
+    
+    if (!order) {
+      return res.json({ success: false, message: "Order not found." });
+    }
+
+    // Calculate summary
+    const summary = {
+      totalZones: order.deliveryZones ? order.deliveryZones.length : 0,
+      districts: order.deliveryZones ? [...new Set(order.deliveryZones.map(z => z.district))] : [],
+      totalRecommendedDrones: order.deliveryZones ? order.deliveryZones.reduce((sum, z) => sum + (z.recommendedDrones || 0), 0) : 0,
+      sameDistrict: order.deliveryZones && order.deliveryZones.length === 1
+    };
+
+    res.json({
+      success: true,
+      data: {
+        orderId: order._id,
+        deliveryZones: order.deliveryZones,
+        summary,
+        restaurants: order.restaurantIds
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching order delivery zones:', error);
+    res.json({ success: false, message: "Error fetching delivery zones." });
+  }
+};
+
+export { placeOrder, cod, verifyOrder, userOrder, listOrders, updateStatus, getRestaurantOrders, updateRestaurantOrderStatus, getOrderDeliveryZones };

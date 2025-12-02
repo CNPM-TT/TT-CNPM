@@ -34,6 +34,7 @@ const Login = () => {
       if (response.data.success) {
         localStorage.setItem('restaurant-auth', 'true');
         localStorage.setItem('restaurant-token', response.data.token);
+        localStorage.setItem('restaurant-id', response.data.restaurantId); // Save restaurant ID
         localStorage.setItem('restaurant-email', response.data.email);
         localStorage.setItem('restaurant-name', response.data.name);
         localStorage.setItem('restaurant-code', response.data.restaurantCode);

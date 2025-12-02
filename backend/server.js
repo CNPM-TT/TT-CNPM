@@ -9,6 +9,8 @@ import userRouter from "./routes/user.route.js";
 import cartRouter from "./routes/cart.route.js";
 import orderRouter from "./routes/order.route.js";
 import restaurantRouter from "./routes/restaurant.route.js";
+import droneRouter from "./routes/drone.route.js";
+import hubRouter from "./routes/hub.route.js";
 import metricsMiddleware from "./middleware/metrics.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -44,6 +46,12 @@ app.use("/api/order", orderRouter)
 
 //restaurant api
 app.use("/api/restaurant", restaurantRouter)
+
+//drone api
+app.use("/api/drone", droneRouter)
+
+//hub api
+app.use("/api/hub", hubRouter)
 
 app.get("/", (req,res)=>{
   res.send("Hello")

@@ -43,6 +43,47 @@ const orderSchema = new mongoose.Schema(
       of: String,
       default: new Map(),
     },
+    // Amount breakdown by restaurant
+    amountByRestaurant: {
+      type: Map,
+      of: Number,
+      default: new Map(),
+    },
+    // Items grouped by restaurant
+    itemsByRestaurant: {
+      type: Object,
+      default: {},
+    },
+    // Drone delivery tracking
+    assignedDrones: [{
+      droneId: { type: mongoose.Schema.Types.ObjectId, ref: 'drone' },
+      restaurantIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'restaurant' }],
+      status: { 
+        type: String, 
+        enum: ['assigned', 'picked_up', 'in_transit', 'delivered'],
+        default: 'assigned'
+      },
+      assignedAt: { type: Date, default: Date.now },
+      deliveredAt: { type: Date }
+    }],
+    // Hub assignment (for consolidating orders from multiple restaurants)
+    assignedHub: {
+      hubId: { type: mongoose.Schema.Types.ObjectId, ref: 'hub' },
+      arrivedAt: { type: Date },
+      status: {
+        type: String,
+        enum: ['pending', 'at_hub', 'consolidated', 'dispatched'],
+        default: 'pending'
+      }
+    },
+    // Delivery zones (for splitting orders by district)
+    deliveryZones: [{
+      district: String,
+      restaurantIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'restaurant' }],
+      items: Array,
+      amount: Number,
+      hubId: { type: mongoose.Schema.Types.ObjectId, ref: 'hub' }
+    }]
   },
   { timestamps: true }
 );

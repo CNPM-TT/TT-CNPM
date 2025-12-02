@@ -72,6 +72,11 @@ const Sidebar = () => {
           <span className="icon">📦</span>
           <p>Completed</p>
         </NavLink>
+
+        <NavLink to="/drones" className="sidebar-option">
+          <span className="icon">🚁</span>
+          <p>My Drones</p>
+        </NavLink>
       </div>
     </div>
   );

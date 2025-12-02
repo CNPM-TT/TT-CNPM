@@ -19,6 +19,14 @@ function Sidebar() {
                     <img src={assets.order_icon} alt="restaurants" />
                     <p>Restaurants</p>
                 </NavLink>
+                <NavLink to={"/drones"} className="sidebar-option">
+                    <img src={assets.add_icon} alt="drones" />
+                    <p>Drones</p>
+                </NavLink>
+                <NavLink to={"/hubs"} className="sidebar-option">
+                    <img src={assets.order_icon} alt="hubs" />
+                    <p>Hubs</p>
+                </NavLink>
                 <NavLink to={"/add"} className="sidebar-option">
                     <img src={assets.add_icon} alt="add" />
                     <p>Add Food</p>

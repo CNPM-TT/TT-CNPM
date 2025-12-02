@@ -48,6 +48,7 @@ const loginRestaurant = async (req, res) => {
     return res.json({
       success: true,
       token,
+      restaurantId: restaurant._id, // Add restaurant ID
       email: restaurant.email,
       name: restaurant.name,
       restaurantCode: restaurant.restaurantCode,
