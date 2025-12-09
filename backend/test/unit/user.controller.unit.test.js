@@ -63,7 +63,7 @@ async function loginUserLogic(req, res) {
   const { email, password } = req.body;
   
   try {
-    const user = await mockUserModel.findOne({ email });
+    // const user = await mockUserModel.findOne({ email });
     
     if (!user) {
       return res.json({ success: false, message: "User doesn't exists." });
