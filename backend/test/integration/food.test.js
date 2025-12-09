@@ -186,7 +186,7 @@ export async function testRemoveFood() {
     const res = await axios.post(
       `${API_URL}/api/food/remove`,
       {
-        id: testFoodId
+        // id: testFoodId
       }
     );
 
